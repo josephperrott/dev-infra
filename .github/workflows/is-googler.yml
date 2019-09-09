@@ -1,0 +1,16 @@
+name: Automatically labels issues opened by Googlers
+
+on:
+  issues:
+    types: [opened, reopened, edited]
+  pull_request:
+    types: [opened, reopened, edited]
+
+jobs:
+  is_googler:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: angular/dev-infra/github-actions/is-googler@master
+        with:
+          bot-key: ${{ secrets.BOT_PRIVATE_KEY }}
+          label: G

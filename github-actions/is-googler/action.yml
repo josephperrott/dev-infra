@@ -1,0 +1,13 @@
+name: 'Is Googler'
+description: 'Automatically labels issues opened by Googlers'
+author: 'Angular'
+inputs:
+  bot-key:
+    description: 'The PEM key for the bot being used to add labels'
+    required: true
+  labels:
+    description: 'Labels to apply if the requestor/reporter is in the Google org'
+    required: true
+runs:
+  using: 'node12'
+  main: 'lib/bundle.js'
