@@ -29,6 +29,17 @@ yarn_install(
     yarn_lock = "//:yarn.lock",
 )
 
+http_archive(
+        name = "io_bazel_rules_webtesting",
+        sha256 = "9bb461d5ef08e850025480bab185fd269242d4e533bca75bfb748001ceb343c3",
+        urls = ["https://github.com/bazelbuild/rules_webtesting/releases/download/0.3.3/rules_webtesting.tar.gz"],
+        )
+
+# Setup the rules_webtesting toolchain
+load("@io_bazel_rules_webtesting//web:repositories.bzl", "web_test_repositories")
+
+web_test_repositories()
+
 _ESBUILD_VERSION = "0.12.1"
 http_archive(
     name = "esbuild_darwin",

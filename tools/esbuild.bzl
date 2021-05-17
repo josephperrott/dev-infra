@@ -29,11 +29,12 @@ _get_single_file = rule(
 
     save_to_repo: Boolean, whether the bundled script should be saved locally to the repo.
 """
-def esbuild(name, entry_point, save_to_repo = False, deps = []):
+def esbuild(name, entry_point, save_to_repo = False, deps = [], external = []):
     _esbuild(
         name = "%s_esbuild" % name,
         entry_point = entry_point,
         deps = deps,
+        external = external,
         tool = select({
             "@bazel_tools//src/conditions:darwin": "@esbuild_darwin//:bin/esbuild",
             "@bazel_tools//src/conditions:windows": "@esbuild_windows//:esbuild.exe",

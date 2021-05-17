@@ -1,0 +1,66 @@
+load("@build_bazel_rules_nodejs//:index.bzl", "pkg_npm")
+load("//tools:defaults.bzl", "ts_project")
+load("//tools:esbuild.bzl", "esbuild")
+
+ts_project(
+    name = "ng-dev",
+    visibility = ["//ng-dev:__subpackages__"],
+    deps = [
+        "@npm//@angular/benchpress",
+        "@npm//@octokit/graphql",
+        "@npm//@octokit/rest",
+        "@npm//@octokit/types",
+        "@npm//@types/cli-progress",
+        "@npm//@types/conventional-commits-parser",
+        "@npm//@types/ejs",
+        "@npm//@types/events",
+        "@npm//@types/git-raw-commits",
+        "@npm//@types/glob",
+        "@npm//@types/inquirer",
+        "@npm//@types/jasmine",
+        "@npm//@types/minimatch",
+        "@npm//@types/minimist",
+        "@npm//@types/node",
+        "@npm//@types/node-fetch",
+        "@npm//@types/selenium-webdriver",
+        "@npm//@types/semver",
+        "@npm//@types/yaml",
+        "@npm//@types/yargs",
+        "@npm//brotli",
+        "@npm//chalk",
+        "@npm//cli-progress",
+        "@npm//conventional-commits-parser",
+        "@npm//ejs",
+        "@npm//git-raw-commits",
+        "@npm//inquirer",
+        "@npm//minimatch",
+        "@npm//minimist",
+        "@npm//multimatch",
+        "@npm//nock",
+        "@npm//node-fetch",
+        "@npm//node-uuid",
+        "@npm//ora",
+        "@npm//protractor",
+        "@npm//selenium-webdriver",
+        "@npm//semver",
+        "@npm//tslib",
+        "@npm//typed-graphqlify",
+        "@npm//typescript",
+        "@npm//yaml",
+        "@npm//yargs",
+    ]
+)
+
+pkg_npm(
+    name = "npm_package",
+    srcs = [
+        "package.json",
+        "//ng-dev/bazel:files",
+        "//ng-dev/benchmark:files",
+    ],
+    visibility = ["//visibility:public"],
+    deps = [
+        ":lib",
+        "//ng-dev/benchmark/driver-utilities",
+    ],
+)

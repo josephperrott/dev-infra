@@ -2,8 +2,9 @@
   "compilerOptions": {
     "module": "CommonJS",
     "target": "es2020",
-    "lib": ["es2020"],
+    "lib": ["es2020", "dom"],
     "strict": true,
-    "moduleResolution": "node"
+    "moduleResolution": "node",
+    "importHelpers": true
   }
 }

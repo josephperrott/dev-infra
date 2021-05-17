@@ -1,0 +1,79 @@
+{
+  "name": "@angular/dev-infra-private",
+  "version": "0.0.0",
+  "description": "INTERNAL USE ONLY - Angular internal DevInfra tooling/scripts - INTERNAL USE ONLY",
+  "license": "MIT",
+  "private": true,
+  "bin": {
+    "ng-dev": "./cli.js"
+  },
+  "scripts": {
+    "ng-dev": "ts-node cli.ts"
+  },
+  "dependencies": {
+    "@angular/benchpress": "0.2.1",
+    "@bazel/buildifier": "^4.0.1",
+    "@octokit/graphql": "^4.6.1",
+    "@octokit/rest": "16.28.7",
+    "@octokit/types": "^6.0.0",
+    "@types/chalk": "^2.2.0",
+    "@types/cli-progress": "^3.9.1",
+    "@types/conventional-commits-parser": "^3.0.1",
+    "@types/ejs": "^3.0.6",
+    "@types/events": "^3.0.0",
+    "@types/git-raw-commits": "^2.0.0",
+    "@types/glob": "^7.1.3",
+    "@types/inquirer": "7.3.1",
+    "@types/jasmine": "^3.7.4",
+    "@types/node": "^12.11.1",
+    "@types/node-fetch": "^2.5.10",
+    "@types/semver": "^7.3.6",
+    "@types/shelljs": "^0.8.8",
+    "@types/yaml": "^1.9.7",
+    "@types/yargs": "^16.0.1",
+    "brotli": "^1.3.2",
+    "chalk": "^4.1.0",
+    "clang-format": "^1.4.0",
+    "cli-progress": "^3.7.0",
+    "conventional-commits-parser": "^3.2.1",
+    "ejs": "^3.1.6",
+    "git-raw-commits": "^2.0.10",
+    "glob": "7.1.7",
+    "inquirer": "^8.0.0",
+    "minimatch": "^3.0.4",
+    "multimatch": "^5.0.0",
+    "node-fetch": "^2.6.1",
+    "node-uuid": "1.4.8",
+    "ora": "^5.0.0",
+    "protractor": "^7.0.0",
+    "selenium-webdriver": "3.5.0",
+    "semver": "^7.3.5",
+    "shelljs": "^0.8.4",
+    "ts-node": "^9.1.1",
+    "tslib": "^2.1.0",
+    "typed-graphqlify": "^3.1.1",
+    "typescript": "~4.2.4",
+    "yaml": "^1.10.0",
+    "yargs": "^17.0.0"
+  },
+  "peerDependenciesMeta": {
+    "@bazel/buildifier": {
+      "optional": true
+    },
+    "clang-format": {
+      "optional": true
+    },
+    "prettier": {
+      "optional": true
+    },
+    "protractor": {
+      "optional": true
+    },
+    "selenium-webdriver": {
+      "optional": true
+    },
+    "ts-node": {
+      "optional": true
+    }
+  }
+}
