@@ -1,46 +1,31 @@
 import * as core from '@actions/core';
 import {context} from '@actions/github';
 import {Octokit} from '@octokit/rest';
-import {parseCommitMessage} from '../../ng-dev/commit-message/parse';
+import {spawnSync} from '../../ng-dev/utils/child-process';
 import {getAuthTokenForAngularRobotApp} from '../utils';
 
 const breakingChangesLabel = 'breaking changes';
 
 async function run(): Promise<void> {
   const token = await getAuthTokenForAngularRobotApp();
-  // Create authenticated Github client.
-  const client = new Octokit({auth: token});
-
-  const {number, owner, repo} = context.issue;
-
-  const hasBreakingChangeLabel = await (
-    await client.issues.listLabelsOnIssue({issue_number: number, owner, repo})
-  ).data.find((label) => label.name === breakingChangesLabel);
-  console.log('hasBreakingChangeLabel', hasBreakingChangeLabel);
-
-  const hasBreakingChangeCommit = (
-    await client.paginate(client.pulls.listCommits, {owner, pull_number: number, repo})
-  ).some((commit) => {
-    return parseCommitMessage(commit.commit.message).breakingChanges.length > 0;
-  });
-
-  if (hasBreakingChangeCommit && !hasBreakingChangeLabel) {
-    await client.issues.addLabels({
-      repo,
-      owner,
-      issue_number: number,
-      labels: [breakingChangesLabel],
-    });
-    console.log(`Added ${breakingChangesLabel} label to PR #${number}`);
-  }
-  if (!hasBreakingChangeCommit && hasBreakingChangeLabel) {
-    await client.issues.removeLabel({
-      repo,
-      owner,
-      issue_number: number,
-      name: breakingChangesLabel,
-    });
-    console.log(`Removed ${breakingChangesLabel} label from PR #${number}`);
+  console.log(spawnSync('git', ['config', '-l']).stdout);
+  spawnSync('git', ['config', '--global', 'user.email', 'jperrott@angular.io']);
+  spawnSync('git', ['config', '--global', 'user.name', 'Test Me']);
+  spawnSync('git', ['config', '--unset', 'http.https://github.com/.extraheader']);
+  if (spawnSync('git', ['log', '-1', '--format=%b']).stdout.trim() === 'commitbody') {
+    spawnSync('git', ['commit', '--allow-empty', '-m', 'test']);
+    spawnSync('git', [
+      'remote',
+      'set-url',
+      'origin',
+      `https://${process.env['GITHUB_ACTOR']!}:${token}@github.com/josephperrott/dev-infra.git`,
+    ]);
+    const x = spawnSync('git', ['push', '-f', 'origin', 'HEAD:update-yarn-backup']);
+    console.log(x.stdout);
+    console.log(x.stderr);
+    console.log('pushed');
+  } else {
+    console.log('different than expected.');
   }
 }
 

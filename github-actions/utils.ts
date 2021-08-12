@@ -10,7 +10,7 @@ export async function getAuthTokenForAngularRobotApp(
   /** Github App id of the Angular Robot app. */
   const appId = 43341;
   /** Installation id of the Angular Robot app. */
-  const installationId = 2813208;
+  const installationId = 2803773;
   // The Angular Lock Bot Github application
   const {token} = await getToken({installationId, appId, privateKey});
 

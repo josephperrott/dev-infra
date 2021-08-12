@@ -11,6 +11,7 @@ ts_library(
     deps = [
         "//github-actions:utils",
         "//ng-dev/commit-message",
+        "//ng-dev/utils",
         "@npm//@actions/core",
         "@npm//@actions/github",
         "@npm//@octokit/rest",
@@ -21,6 +22,7 @@ ts_library(
 esbuild_checked_in(
     name = "bundle",
     entry_point = "main.ts",
+    external = ["ts-node"],
     deps = [
         ":breakings-changes-auto-labeling",
     ],

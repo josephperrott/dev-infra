@@ -6,7 +6,7 @@ ts_library(
         "*.ts",
         "git/*.ts",
     ]),
-    visibility = ["//ng-dev:__subpackages__"],
+    visibility = ["//:__subpackages__"],
     deps = [
         "@npm//@octokit/core",
         "@npm//@octokit/graphql",
