@@ -9862,7 +9862,7 @@ var require_utils4 = __commonJS({
     exports2.ANGULAR_LOCK_BOT = [40213, "lock-bot-key"];
     exports2.ANGULAR_ROBOT = [43341, "angular-robot-key"];
     async function getJwtAuthedGithubClient([appId, inputKey]) {
-      const privateKey = core_1.getInput(inputKey, { required: true });
+      const privateKey = (0, core_1.getInput)(inputKey, { required: true });
       return new rest_12.Octokit({
         authStrategy: auth_app_1.createAppAuth,
         auth: { appId, privateKey }
@@ -9880,7 +9880,7 @@ var require_utils4 = __commonJS({
     async function revokeAuthTokenFor(app) {
       const github = await getJwtAuthedGithubClient(app);
       await github.rest.apps.revokeInstallationAccessToken();
-      core_1.info("Revoked installation token used for Angular Robot.");
+      (0, core_1.info)("Revoked installation token used for Angular Robot.");
     }
     exports2.revokeAuthTokenFor = revokeAuthTokenFor;
   }
@@ -9899,7 +9899,7 @@ var require_rerun_circleci = __commonJS({
     var node_fetch_1 = require_lib();
     async function rerunCircleCi() {
       const circleci = new CircleCiClient();
-      const github = new rest_12.Octokit({ auth: await utils_12.getAuthTokenFor(utils_12.ANGULAR_ROBOT) });
+      const github = new rest_12.Octokit({ auth: await (0, utils_12.getAuthTokenFor)(utils_12.ANGULAR_ROBOT) });
       const { data: pullRequest } = await github.pulls.get(__spreadProps(__spreadValues({}, github_12.context.repo), {
         pull_number: github_12.context.payload.issue.number
       }));
@@ -9907,16 +9907,19 @@ var require_rerun_circleci = __commonJS({
         const workflowId = await getCircleCiWorkflowIdForPullRequest(pullRequest, github, circleci);
         await circleci.post(`workflow/${workflowId}/rerun`, { from_failed: true });
       } catch (err) {
-        await github.issues.createComment(__spreadProps(__spreadValues({}, github_12.context.repo), {
-          issue_number: pullRequest.number,
-          body: `@${github_12.context.actor} the CircleCI rerun you requested failed.  See details below:
+        if (err instanceof Error) {
+          await github.issues.createComment(__spreadProps(__spreadValues({}, github_12.context.repo), {
+            issue_number: pullRequest.number,
+            body: `@${github_12.context.actor} the CircleCI rerun you requested failed.  See details below:
 
 \`\`\`
 ${err.message}
 \`\`\``,
-          number: pullRequest.number
-        }));
-        core2.error(err);
+            number: pullRequest.number
+          }));
+          core2.error(err);
+        }
+        throw err;
       }
     }
     exports2.rerunCircleCi = rerunCircleCi;
@@ -9962,7 +9965,7 @@ ${err.message}
         if (method !== "GET") {
           requestInit["body"] = JSON.stringify(body);
         }
-        const response = await node_fetch_1.default(url, requestInit);
+        const response = await (0, node_fetch_1.default)(url, requestInit);
         const responseJson = await response.json();
         if (!response.ok) {
           const message = responseJson["message"] || "Unknown error";
@@ -20120,7 +20123,7 @@ var require_parse = __commonJS({
       return Object.entries(fields).map(([key, value]) => `%n-${key}-%n${value}`).join("");
     };
     exports2.commitFieldsAsFormat = commitFieldsAsFormat;
-    exports2.gitLogFormatForParsing = `%B${exports2.commitFieldsAsFormat(commitFields)}`;
+    exports2.gitLogFormatForParsing = `%B${(0, exports2.commitFieldsAsFormat)(commitFields)}`;
     var NoteSections;
     (function(NoteSections2) {
       NoteSections2["BREAKING_CHANGE"] = "BREAKING CHANGE";
@@ -20143,7 +20146,7 @@ var require_parse = __commonJS({
     function parseInternal(fullText) {
       fullText = fullText.toString();
       const strippedCommitMsg = fullText.replace(FIXUP_PREFIX_RE, "").replace(SQUASH_PREFIX_RE, "").replace(REVERT_PREFIX_RE, "");
-      const commit = conventional_commits_parser_1.sync(strippedCommitMsg, parseOptions);
+      const commit = (0, conventional_commits_parser_1.sync)(strippedCommitMsg, parseOptions);
       const breakingChanges = [];
       const deprecations = [];
       commit.notes.forEach((note) => {
@@ -20188,7 +20191,7 @@ var require_utils5 = __commonJS({
       return new Promise((resolve, reject) => {
         const commits = [];
         const commitStream = gitCommits({ from, to, format: parse_1.gitLogFormatForParsing });
-        commitStream.on("data", (commit) => commits.push(parse_1.parseCommitFromGitLog(commit)));
+        commitStream.on("data", (commit) => commits.push((0, parse_1.parseCommitFromGitLog)(commit)));
         commitStream.on("error", (err) => reject(err));
         commitStream.on("end", () => resolve(commits));
       });
@@ -49218,7 +49221,7 @@ var require_config2 = __commonJS({
     function getConfig(baseDir) {
       if (cachedConfig === null) {
         baseDir = baseDir || git_client_1.GitClient.get().baseDir;
-        const configPath = path_1.join(baseDir, CONFIG_FILE_PATH);
+        const configPath = (0, path_1.join)(baseDir, CONFIG_FILE_PATH);
         cachedConfig = readConfigFile(configPath);
       }
       return __spreadValues({}, cachedConfig);
@@ -49227,7 +49230,7 @@ var require_config2 = __commonJS({
     function getUserConfig() {
       if (userConfig === null) {
         const git = git_client_1.GitClient.get();
-        const configPath = path_1.join(git.baseDir, USER_CONFIG_FILE_PATH);
+        const configPath = (0, path_1.join)(git.baseDir, USER_CONFIG_FILE_PATH);
         userConfig = readConfigFile(configPath, true);
       }
       return __spreadValues({}, userConfig);
@@ -49259,9 +49262,9 @@ var require_config2 = __commonJS({
     }
     exports2.assertValidGithubConfig = assertValidGithubConfig;
     function readConfigFile(configPath, returnEmptyObjectOnError = false) {
-      if (require.extensions[".ts"] === void 0 && fs_1.existsSync(`${configPath}.ts`) && ts_node_1.isTsNodeAvailable()) {
+      if (require.extensions[".ts"] === void 0 && (0, fs_1.existsSync)(`${configPath}.ts`) && (0, ts_node_1.isTsNodeAvailable)()) {
         require("ts-node").register({
-          dir: path_1.dirname(configPath),
+          dir: (0, path_1.dirname)(configPath),
           transpileOnly: true,
           compilerOptions: { module: "commonjs" }
         });
@@ -49270,12 +49273,12 @@ var require_config2 = __commonJS({
         return require(configPath);
       } catch (e) {
         if (returnEmptyObjectOnError) {
-          console_1.debug(`Could not read configuration file at ${configPath}, returning empty object instead.`);
-          console_1.debug(e);
+          (0, console_1.debug)(`Could not read configuration file at ${configPath}, returning empty object instead.`);
+          (0, console_1.debug)(e);
           return {};
         }
-        console_1.error(`Could not read configuration file at ${configPath}.`);
-        console_1.error(e);
+        (0, console_1.error)(`Could not read configuration file at ${configPath}.`);
+        (0, console_1.error)(e);
         process.exit(1);
       }
     }
@@ -49283,9 +49286,9 @@ var require_config2 = __commonJS({
       if (errors.length == 0) {
         return;
       }
-      console_1.error(`Errors discovered while loading configuration file:`);
+      (0, console_1.error)(`Errors discovered while loading configuration file:`);
       for (const err of errors) {
-        console_1.error(`  - ${err}`);
+        (0, console_1.error)(`  - ${err}`);
       }
       process.exit(1);
     }
@@ -49335,14 +49338,11 @@ var require_github2 = __commonJS({
     exports2.AuthenticatedGithubClient = exports2.GithubClient = exports2.GithubApiRequestError = void 0;
     var graphql_1 = require_dist_node6();
     var rest_12 = require_dist_node12();
+    var request_error_1 = require_dist_node4();
+    Object.defineProperty(exports2, "GithubApiRequestError", { enumerable: true, get: function() {
+      return request_error_1.RequestError;
+    } });
     var typed_graphqlify_1 = require_dist();
-    var GithubApiRequestError = class extends Error {
-      constructor(status, message) {
-        super(message);
-        this.status = status;
-      }
-    };
-    exports2.GithubApiRequestError = GithubApiRequestError;
     var GithubClient = class {
       constructor(_octokitOptions) {
         this._octokitOptions = _octokitOptions;
@@ -49365,7 +49365,7 @@ var require_github2 = __commonJS({
         this._graphql = graphql_1.graphql.defaults({ headers: { authorization: `token ${this._token}` } });
       }
       async graphql(queryObject, params = {}) {
-        return await this._graphql(typed_graphqlify_1.query(queryObject).toString(), params);
+        return await this._graphql((0, typed_graphqlify_1.query)(queryObject).toString(), params);
       }
     };
     exports2.AuthenticatedGithubClient = AuthenticatedGithubClient;
@@ -49432,11 +49432,11 @@ var require_git_client = __commonJS({
     };
     exports2.GitCommandError = GitCommandError;
     var GitClient = class {
-      constructor(baseDir = determineRepoBaseDirFromCwd(), config = config_1.getConfig(baseDir)) {
+      constructor(baseDir = determineRepoBaseDirFromCwd(), config = (0, config_1.getConfig)(baseDir)) {
         this.baseDir = baseDir;
         this.github = new github_12.GithubClient();
         this.gitBinPath = "git";
-        config_1.assertValidGithubConfig(config);
+        (0, config_1.assertValidGithubConfig)(config);
         this.config = config;
         this.remoteConfig = config.github;
         this.remoteParams = { owner: config.github.owner, repo: config.github.name };
@@ -49451,13 +49451,13 @@ var require_git_client = __commonJS({
       }
       runGraceful(args, options = {}) {
         const gitCommand = args[0];
-        if (dry_run_1.isDryRun() && gitCommand === "push") {
-          console_1.debug(`"git push" is not able to be run in dryRun mode.`);
+        if ((0, dry_run_1.isDryRun)() && gitCommand === "push") {
+          (0, console_1.debug)(`"git push" is not able to be run in dryRun mode.`);
           throw new dry_run_1.DryRunError();
         }
         const printFn = GitClient.verboseLogging || options.verboseLogging ? console_1.info : console_1.debug;
         printFn("Executing: git", this.sanitizeConsoleOutput(args.join(" ")));
-        const result = child_process_1.spawnSync(this.gitBinPath, args, __spreadProps(__spreadValues({
+        const result = (0, child_process_1.spawnSync)(this.gitBinPath, args, __spreadProps(__spreadValues({
           cwd: this.baseDir,
           stdio: "pipe"
         }, options), {
@@ -49472,7 +49472,7 @@ var require_git_client = __commonJS({
         return result;
       }
       getRepoGitUrl() {
-        return github_urls_1.getRepositoryGitUrl(this.remoteConfig);
+        return (0, github_urls_1.getRepositoryGitUrl)(this.remoteConfig);
       }
       hasCommit(branchName, sha) {
         return this.run(["branch", branchName, "--contains", sha]).stdout !== "";
@@ -49527,7 +49527,7 @@ var require_git_client = __commonJS({
       return gitCommandResult.stdout.split("\n").map((x) => x.trim()).filter((x) => !!x);
     }
     function determineRepoBaseDirFromCwd() {
-      const { stdout, stderr, status } = child_process_1.spawnSync("git", ["rev-parse --show-toplevel"], {
+      const { stdout, stderr, status } = (0, child_process_1.spawnSync)("git", ["rev-parse --show-toplevel"], {
         shell: true,
         stdio: "pipe",
         encoding: "utf8"
@@ -49560,7 +49560,7 @@ var require_console = __commonJS({
     exports2.bold = chalk.bold;
     exports2.blue = chalk.blue;
     async function promptConfirm(message, defaultValue = false) {
-      return (await inquirer_1.prompt({
+      return (await (0, inquirer_1.prompt)({
         type: "confirm",
         name: "result",
         message,
@@ -49569,7 +49569,7 @@ var require_console = __commonJS({
     }
     exports2.promptConfirm = promptConfirm;
     async function promptInput(message) {
-      return (await inquirer_1.prompt({ type: "input", name: "result", message })).result;
+      return (await (0, inquirer_1.prompt)({ type: "input", name: "result", message })).result;
     }
     exports2.promptInput = promptInput;
     var LOG_LEVELS;
@@ -49591,9 +49591,9 @@ var require_console = __commonJS({
       const loggingFunction = (...text) => {
         runConsoleCommand(loadCommand, level, ...text);
       };
-      loggingFunction.group = (text, collapsed = false) => {
+      loggingFunction.group = (label, collapsed = false) => {
         const command = collapsed ? console.groupCollapsed : console.group;
-        runConsoleCommand(() => command, level, text);
+        runConsoleCommand(() => command, level, label);
       };
       loggingFunction.groupEnd = () => {
         runConsoleCommand(() => console.groupEnd, level);
@@ -49635,13 +49635,13 @@ Ran at: ${now}
 `;
         LOGGED_TEXT += `Exit Code: ${code}
 `;
-        const logFilePath = path_1.join(git.baseDir, ".ng-dev.log");
+        const logFilePath = (0, path_1.join)(git.baseDir, ".ng-dev.log");
         LOGGED_TEXT = LOGGED_TEXT.replace(/\x1B\[([0-9]{1,3}(;[0-9]{1,2})?)?[mGK]/g, "");
-        fs_1.writeFileSync(logFilePath, LOGGED_TEXT);
+        (0, fs_1.writeFileSync)(logFilePath, LOGGED_TEXT);
         if (code > 1) {
           const logFileName = `.ng-dev.err-${now.getTime()}.log`;
           console.error(`Exit code: ${code}. Writing full log to ${logFileName}`);
-          fs_1.writeFileSync(path_1.join(git.baseDir, logFileName), LOGGED_TEXT);
+          (0, fs_1.writeFileSync)((0, path_1.join)(git.baseDir, logFileName), LOGGED_TEXT);
         }
       });
       FILE_LOGGING_ENABLED = true;
@@ -49677,7 +49677,7 @@ var require_authenticated_git_client = __commonJS({
         return value.replace(this._githubTokenRegex, "<TOKEN>");
       }
       getRepoGitUrl() {
-        return github_urls_1.getRepositoryGitUrl(this.remoteConfig, this.githubToken);
+        return (0, github_urls_1.getRepositoryGitUrl)(this.remoteConfig, this.githubToken);
       }
       async hasOauthScopes(testFn) {
         const scopes = await this._fetchAuthScopesForToken();
@@ -49686,7 +49686,7 @@ var require_authenticated_git_client = __commonJS({
         if (missingScopes.length === 0) {
           return true;
         }
-        const error = `The provided <TOKEN> does not have required permissions due to missing scope(s): ${console_1.yellow(missingScopes.join(", "))}
+        const error = `The provided <TOKEN> does not have required permissions due to missing scope(s): ${(0, console_1.yellow)(missingScopes.join(", "))}
 
 Update the token in use at:
   ${github_urls_1.GITHUB_TOKEN_SETTINGS_URL}
@@ -49742,13 +49742,13 @@ var require_github3 = __commonJS({
     var typed_graphqlify_1 = require_dist();
     async function getPr(prSchema, prNumber, git) {
       const { owner, name } = git.remoteConfig;
-      const PR_QUERY = typed_graphqlify_1.params({
+      const PR_QUERY = (0, typed_graphqlify_1.params)({
         $number: "Int!",
         $owner: "String!",
         $name: "String!"
       }, {
-        repository: typed_graphqlify_1.params({ owner: "$owner", name: "$name" }, {
-          pullRequest: typed_graphqlify_1.params({ number: "$number" }, prSchema)
+        repository: (0, typed_graphqlify_1.params)({ owner: "$owner", name: "$name" }, {
+          pullRequest: (0, typed_graphqlify_1.params)({ number: "$number" }, prSchema)
         })
       });
       const result = await git.github.graphql(PR_QUERY, { number: prNumber, owner, name });
@@ -49757,14 +49757,14 @@ var require_github3 = __commonJS({
     exports2.getPr = getPr;
     async function getPendingPrs(prSchema, git) {
       const { owner, name } = git.remoteConfig;
-      const PRS_QUERY = typed_graphqlify_1.params({
+      const PRS_QUERY = (0, typed_graphqlify_1.params)({
         $first: "Int",
         $after: "String",
         $owner: "String!",
         $name: "String!"
       }, {
-        repository: typed_graphqlify_1.params({ owner: "$owner", name: "$name" }, {
-          pullRequests: typed_graphqlify_1.params({
+        repository: (0, typed_graphqlify_1.params)({ owner: "$owner", name: "$name" }, {
+          pullRequests: (0, typed_graphqlify_1.params)({
             first: "$first",
             after: "$after",
             states: `OPEN`
@@ -49833,59 +49833,59 @@ var require_rebase = __commonJS({
     async function rebasePr(prNumber, githubToken) {
       const git = authenticated_git_client_1.AuthenticatedGitClient.get();
       if (git.hasUncommittedChanges()) {
-        console_1.error("Cannot perform rebase of PR with local changes.");
+        (0, console_1.error)("Cannot perform rebase of PR with local changes.");
         return 1;
       }
       const previousBranchOrRevision = git.getCurrentBranchOrRevision();
-      const pr = await github_12.getPr(PR_SCHEMA, prNumber, git);
+      const pr = await (0, github_12.getPr)(PR_SCHEMA, prNumber, git);
       const headRefName = pr.headRef.name;
       const baseRefName = pr.baseRef.name;
       const fullHeadRef = `${pr.headRef.repository.nameWithOwner}:${headRefName}`;
       const fullBaseRef = `${pr.baseRef.repository.nameWithOwner}:${baseRefName}`;
-      const headRefUrl = github_urls_1.addTokenToGitHttpsUrl(pr.headRef.repository.url, githubToken);
-      const baseRefUrl = github_urls_1.addTokenToGitHttpsUrl(pr.baseRef.repository.url, githubToken);
+      const headRefUrl = (0, github_urls_1.addTokenToGitHttpsUrl)(pr.headRef.repository.url, githubToken);
+      const baseRefUrl = (0, github_urls_1.addTokenToGitHttpsUrl)(pr.baseRef.repository.url, githubToken);
       const forceWithLeaseFlag = `--force-with-lease=${headRefName}:${pr.headRefOid}`;
       if (!pr.maintainerCanModify && !pr.viewerDidAuthor) {
-        console_1.error(`Cannot rebase as you did not author the PR and the PR does not allow maintainersto modify the PR`);
+        (0, console_1.error)(`Cannot rebase as you did not author the PR and the PR does not allow maintainersto modify the PR`);
         return 1;
       }
       try {
-        console_1.info(`Checking out PR #${prNumber} from ${fullHeadRef}`);
+        (0, console_1.info)(`Checking out PR #${prNumber} from ${fullHeadRef}`);
         git.run(["fetch", "-q", headRefUrl, headRefName, "--depth=500"]);
         git.run(["checkout", "-q", "--detach", "FETCH_HEAD"]);
-        console_1.info(`Fetching ${fullBaseRef} to rebase #${prNumber} on`);
+        (0, console_1.info)(`Fetching ${fullBaseRef} to rebase #${prNumber} on`);
         git.run(["fetch", "-q", baseRefUrl, baseRefName, "--depth=500"]);
         const commonAncestorSha = git.run(["merge-base", "HEAD", "FETCH_HEAD"]).stdout.trim();
-        const commits = await utils_12.getCommitsInRange(commonAncestorSha, "HEAD");
-        let squashFixups = process.env["CI"] !== void 0 || commits.filter((commit) => commit.isFixup).length === 0 ? false : await console_1.promptConfirm(`PR #${prNumber} contains fixup commits, would you like to squash them during rebase?`, true);
-        console_1.info(`Attempting to rebase PR #${prNumber} on ${fullBaseRef}`);
+        const commits = await (0, utils_12.getCommitsInRange)(commonAncestorSha, "HEAD");
+        let squashFixups = process.env["CI"] !== void 0 || commits.filter((commit) => commit.isFixup).length === 0 ? false : await (0, console_1.promptConfirm)(`PR #${prNumber} contains fixup commits, would you like to squash them during rebase?`, true);
+        (0, console_1.info)(`Attempting to rebase PR #${prNumber} on ${fullBaseRef}`);
         const [flags, env] = squashFixups ? [["--interactive", "--autosquash"], __spreadProps(__spreadValues({}, process.env), { GIT_SEQUENCE_EDITOR: "true" })] : [[], void 0];
         const rebaseResult = git.runGraceful(["rebase", ...flags, "FETCH_HEAD"], { env });
         if (rebaseResult.status === 0) {
-          console_1.info(`Rebase was able to complete automatically without conflicts`);
-          console_1.info(`Pushing rebased PR #${prNumber} to ${fullHeadRef}`);
+          (0, console_1.info)(`Rebase was able to complete automatically without conflicts`);
+          (0, console_1.info)(`Pushing rebased PR #${prNumber} to ${fullHeadRef}`);
           git.run(["push", headRefUrl, `HEAD:${headRefName}`, forceWithLeaseFlag]);
-          console_1.info(`Rebased and updated PR #${prNumber}`);
+          (0, console_1.info)(`Rebased and updated PR #${prNumber}`);
           git.checkout(previousBranchOrRevision, true);
           return 0;
         }
       } catch (err) {
-        console_1.error(err.message);
+        (0, console_1.error)(err);
         git.checkout(previousBranchOrRevision, true);
         return 1;
       }
-      console_1.info(`Rebase was unable to complete automatically without conflicts.`);
-      const continueRebase = process.env["CI"] === void 0 && await console_1.promptConfirm("Manually complete rebase?");
+      (0, console_1.info)(`Rebase was unable to complete automatically without conflicts.`);
+      const continueRebase = process.env["CI"] === void 0 && await (0, console_1.promptConfirm)("Manually complete rebase?");
       if (continueRebase) {
-        console_1.info(`After manually completing rebase, run the following command to update PR #${prNumber}:`);
-        console_1.info(` $ git push ${pr.headRef.repository.url} HEAD:${headRefName} ${forceWithLeaseFlag}`);
-        console_1.info();
-        console_1.info(`To abort the rebase and return to the state of the repository before this command`);
-        console_1.info(`run the following command:`);
-        console_1.info(` $ git rebase --abort && git reset --hard && git checkout ${previousBranchOrRevision}`);
+        (0, console_1.info)(`After manually completing rebase, run the following command to update PR #${prNumber}:`);
+        (0, console_1.info)(` $ git push ${pr.headRef.repository.url} HEAD:${headRefName} ${forceWithLeaseFlag}`);
+        (0, console_1.info)();
+        (0, console_1.info)(`To abort the rebase and return to the state of the repository before this command`);
+        (0, console_1.info)(`run the following command:`);
+        (0, console_1.info)(` $ git rebase --abort && git reset --hard && git checkout ${previousBranchOrRevision}`);
         return 1;
       } else {
-        console_1.info(`Cleaning up git state, and restoring previous state.`);
+        (0, console_1.info)(`Cleaning up git state, and restoring previous state.`);
       }
       git.checkout(previousBranchOrRevision, true);
       return 1;
@@ -49972,7 +49972,7 @@ async function assertPermissionsToPerformCommand() {
   if (github_1.context.payload.issue.user.login === github_1.context.payload.comment.user.login) {
     return true;
   }
-  const token = await utils_1.getAuthTokenFor(utils_1.ANGULAR_ROBOT);
+  const token = await (0, utils_1.getAuthTokenFor)(utils_1.ANGULAR_ROBOT);
   const github = new rest_1.Octokit({ auth: token });
   await github.issues.createComment(__spreadProps(__spreadValues({}, github_1.context.repo), {
     issue_number: github_1.context.payload.issue.number,
@@ -49987,9 +49987,9 @@ async function run() {
   const [command] = parseCommandFromContext();
   switch (command) {
     case "rerun-circleci":
-      return await rerun_circleci_1.rerunCircleCi();
+      return await (0, rerun_circleci_1.rerunCircleCi)();
     case "rebase":
-      return await rebase_1.rebase();
+      return await (0, rebase_1.rebase)();
     case void 0:
       return core.info(`Skipping as only the commandMarker (${commandMarker}) is provided as a command`);
     default:
