@@ -7,9 +7,11 @@
  */
 
 import * as chalk from 'chalk';
-import {writeFileSync} from 'fs';
+import {Console} from 'console';
+import {createWriteStream, writeFileSync} from 'fs';
 import {prompt} from 'inquirer';
 import {join} from 'path';
+import {Duplex, Transform, Writable} from 'stream';
 import {Arguments} from 'yargs';
 
 import {GitClient} from './git/git-client';
@@ -145,34 +147,7 @@ export function captureLogOutputForCommand(argv: Arguments) {
     throw Error('`captureLogOutputForCommand` cannot be called multiple times');
   }
 
-  const git = GitClient.get();
-  /** The date time used for timestamping when the command was invoked. */
-  const now = new Date();
-  /** Header line to separate command runs in log files. */
-  const headerLine = Array(100).fill('#').join('');
-  LOGGED_TEXT += `${headerLine}\nCommand: ${argv.$0} ${argv._.join(' ')}\nRan at: ${now}\n`;
-
-  // On process exit, write the logged output to the appropriate log files
-  process.on('exit', (code: number) => {
-    LOGGED_TEXT += `${headerLine}\n`;
-    LOGGED_TEXT += `Command ran in ${new Date().getTime() - now.getTime()}ms\n`;
-    LOGGED_TEXT += `Exit Code: ${code}\n`;
-    /** Path to the log file location. */
-    const logFilePath = join(git.baseDir, '.ng-dev.log');
-
-    // Strip ANSI escape codes from log outputs.
-    LOGGED_TEXT = LOGGED_TEXT.replace(/\x1B\[([0-9]{1,3}(;[0-9]{1,2})?)?[mGK]/g, '');
-
-    writeFileSync(logFilePath, LOGGED_TEXT);
-
-    // For failure codes greater than 1, the new logged lines should be written to a specific log
-    // file for the command run failure.
-    if (code > 1) {
-      const logFileName = `.ng-dev.err-${now.getTime()}.log`;
-      console.error(`Exit code: ${code}. Writing full log to ${logFileName}`);
-      writeFileSync(join(git.baseDir, logFileName), LOGGED_TEXT);
-    }
-  });
+  enableNgDevLogging();
 
   // Mark file logging as enabled to prevent the function from executing multiple times.
   FILE_LOGGING_ENABLED = true;
@@ -186,4 +161,39 @@ function printToLogFile(logLevel: LOG_LEVELS, ...text: unknown[]) {
     .split('\n')
     .map((l) => `${logLevelText} ${l}\n`)
     .join('');
+}
+
+class PassThrough extends Duplex {
+  override _read() {}
+
+  override _write(chunk: any, _: any, next: any) {
+    this.push(chunk);
+    next();
+  }
+}
+
+class FilterConsoleMessages extends Transform {
+  override _transform(chunk: string, encoding: unknown, next: any) {
+    this.push(chunk);
+  }
+}
+
+class LogFileTransformer extends Transform {
+  override _transform(chunk: string, encoding: unknown, next: any) {
+    this.push(chunk);
+  }
+}
+
+function enableNgDevLogging() {
+  const stdout = new PassThrough();
+  const stderr = new PassThrough();
+  console = new Console(stdout, stderr);
+  const filter = new FilterConsoleMessages();
+
+  const logStream = createWriteStream(join(process.cwd(), '.ng-dev.log'));
+  stdout.pipe(new LogFileTransformer()).pipe(logStream);
+  stderr.pipe(new LogFileTransformer()).pipe(logStream);
+
+  stderr.pipe(process.stderr);
+  stdout.pipe(filter).pipe(process.stdout);
 }
