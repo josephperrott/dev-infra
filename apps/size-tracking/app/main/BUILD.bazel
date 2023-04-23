@@ -1,0 +1,24 @@
+load("//tools:defaults.bzl", "ng_module")
+load("@io_bazel_rules_sass//:defs.bzl", "sass_binary")
+
+package(default_visibility = ["//apps/size-tracking:__subpackages__"])
+
+ng_module(
+    name = "main",
+    srcs = glob(["*.ts"]),
+    assets = [
+        ":main.component.css",
+        "main.component.html",
+    ],
+    deps = [
+        "//apps/size-tracking/app/compare",
+        "@npm//@angular/common",
+        "@npm//@angular/core",
+        "@npm//@angular/material",
+    ],
+)
+
+sass_binary(
+    name = "main-style",
+    src = "main.component.scss",
+)

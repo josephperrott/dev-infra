@@ -1,0 +1,39 @@
+load("//tools:defaults.bzl", "ng_module")
+load("@io_bazel_rules_sass//:defs.bzl", "sass_binary")
+
+package(default_visibility = ["//apps/size-tracking:__subpackages__"])
+
+ng_module(
+    name = "app",
+    srcs = [
+        "app.component.ts",
+    ],
+    assets = [
+        ":app.component.css",
+        "app.component.html",
+    ],
+    deps = [
+        "//apps/shared/account",
+        "@npm//@angular/common",
+        "@npm//@angular/core",
+        "@npm//@angular/router",
+    ],
+)
+
+sass_binary(
+    name = "app-style",
+    src = "app.component.scss",
+)
+
+ng_module(
+    name = "app_routes",
+    srcs = [
+        "app.routes.ts",
+    ],
+    deps = [
+        "//apps/size-tracking/app/login",
+        "//apps/size-tracking/app/main",
+        "//apps/shared/account",
+        "@npm//@angular/router",
+    ],
+)

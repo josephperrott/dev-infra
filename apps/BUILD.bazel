@@ -22,7 +22,8 @@ nodejs_binary(
         "//apps/functions:functions_files",
 
         # Firebase hosted application files
-        "//apps/code-of-conduct:application_files",
+        # "//apps/code-of-conduct:application_files",
+        "//apps/size-tracking:application_files",
     ],
     entry_point = "@npm//:node_modules/firebase-tools/lib/bin/firebase.js",
     tags = ["ibazel_notify_changes"],

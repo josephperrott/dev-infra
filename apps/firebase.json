@@ -6,7 +6,7 @@
   "hosting": [
     {
       "target": "code-of-conduct",
-      "public": "./code-of-conduct",
+      "public": "./size-tracking",
       "ignore": ["**/.*"],
       "headers": [
         {
