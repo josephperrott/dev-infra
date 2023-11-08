@@ -3,7 +3,10 @@ load("//bazel/markdown_to_html:markdown_to_html.bzl", "markdown_to_html")
 
 markdown_to_html(
     name = "test",
-    srcs = ["fake-markdown-source.md"],
+    srcs = [
+        "fake-markdown-source.md",
+        "app.module.1.ts"
+    ],
 )
 
 ts_library(

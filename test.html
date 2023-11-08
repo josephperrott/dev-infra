@@ -1,0 +1,479 @@
+
+  <!-- Document Header -->
+  <header class="docs-header">
+    <docs-breadcrumb></docs-breadcrumb>
+
+    
+  <!-- Page title -->
+  <div class="docs-page-title">
+    <h1 tabindex="-1">Introduction to Angular animations</h1>
+    <a class="docs-github-links" target="_blank" href="https://github.com/angular/angular/edit/main/adev/src/content/guide/animations/overview.md" title="Edit this page" aria-label="Edit this page">
+      <!-- Pencil -->
+      <!-- <docs-icon role="presentation">edit</docs-icon> -->
+    </a>
+  </div>
+  </header>
+  <p>Animation provides the illusion of motion: HTML elements change styling over time.
+Well-designed animations can make your application more fun and straightforward to use, but they aren&#39;t just cosmetic.
+Animations can improve your application and user experience in a number of ways:</p>
+
+  <ul class="docs-list">
+    <li>Without animations, web page transitions can seem abrupt and jarring</li>
+<li>Motion greatly enhances the user experience, so animations give users a chance to detect the application&#39;s response to their actions</li>
+<li>Good animations intuitively call the user&#39;s attention to where it is needed</li>
+
+  </ul>
+  <p>Typically, animations involve multiple style <em>transformations</em> over time.
+An HTML element can move, change color, grow or shrink, fade, or slide off the page.
+These changes can occur simultaneously or sequentially. You can control the timing of each transformation.</p>
+<p>Angular&#39;s animation system is built on CSS functionality, which means you can animate any property that the browser considers animatable.
+This includes positions, sizes, transforms, colors, borders, and more.
+The W3C maintains a list of animatable properties on its <a href="https://www.w3.org/TR/css-transitions-1"  target="_blank">CSS Transitions</a> page.</p>
+
+  <h2 id="about-this-guide">
+    <a href="#about-this-guide" class="docs-anchor" tabindex="-1">About this guide</a>
+  </h2><p>This guide covers the basic Angular animation features to get you started on adding Angular animations to your project.</p>
+
+  <h2 id="getting-started">
+    <a href="#getting-started" class="docs-anchor" tabindex="-1">Getting started</a>
+  </h2><p>The main Angular modules for animations are <code>@angular/animations</code> and <code>@angular/platform-browser</code>.</p>
+<p>To get started with adding Angular animations to your project, import the animation-specific modules along with standard Angular functionality.</p>
+
+    <ol class="docs-steps">
+      
+    <li>
+      <span class="docs-step-number" aria-hidden="true"></span>
+      
+  <h3 id="enabling-the-animations-module">
+    <a href="#enabling-the-animations-module" class="docs-anchor" tabindex="-1">Enabling the animations module</a>
+  </h3>
+      <p>Import <a href="api/platform-browser/animations/provideAnimationsAsync"><code>provideAnimationsAsync</code></a> from <code>@angular/platform-browser/animations/async</code> and add it to the providers list in the <a href="api/platform-browser/bootstrapApplication"><code>bootstrapApplication</code></a> function call.</p>
+
+  <div class="docs-code" header="Enabling Animations">
+    <div class="docs-code-header"><h3>Enabling Animations</h3></div>
+    <pre class="adev-mini-scroll-track">
+      <code><span role="presentation" class="hljs-ln-number">1</span><div class="hljs-ln-line"><span class="hljs-title function_">bootstrapApplication</span>(<span class="hljs-title class_">AppComponent</span>, {</div><span role="presentation" class="hljs-ln-number">2</span><div class="hljs-ln-line">  <span class="hljs-attr">providers</span>: [</div><span role="presentation" class="hljs-ln-number">3</span><div class="hljs-ln-line">    <span class="hljs-title function_">provideAnimationsAsync</span>(),</div><span role="presentation" class="hljs-ln-number">4</span><div class="hljs-ln-line">  ]</div><span role="presentation" class="hljs-ln-number">5</span><div class="hljs-ln-line">});</div></code>
+    </pre>
+  </div>
+  
+    <div class="docs-callout docs-callout-important">
+      <h3>If you need immediate animations in your application</h3>
+      <p><p>If you need to have an animation happen immediately when your application is loaded,
+  you will want to switch to the eagerly loaded animations module. Import <a href="api/platform-browser/animations/provideAnimations"><code>provideAnimations</code></a>
+  from <code>@angular/platform-browser/animations</code> instead, and use <a href="api/platform-browser/animations/provideAnimations"><code>provideAnimations</code></a> <strong>in place of</strong>
+  <a href="api/platform-browser/animations/provideAnimationsAsync"><code>provideAnimationsAsync</code></a> in the <a href="api/platform-browser/bootstrapApplication"><code>bootstrapApplication</code></a> function call.</p>
+</p>
+    </div>
+    <p>For <a href="api/core/NgModule"><code>NgModule</code></a> based applications import <a href="api/platform-browser/animations/BrowserAnimationsModule"><code>BrowserAnimationsModule</code></a>, which introduces the animation capabilities into your Angular root application module.</p>
+
+  <div class="docs-code" path="animations/src/app/app.module.1.ts" header="src/app/app.module.ts">
+    <div class="docs-code-header"><h3>src/app/app.module.ts</h3></div>
+    <pre class="adev-mini-scroll-track">
+      <code><div class="hljs-ln-line"><span class="hljs-keyword">import</span> { NgModule } <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;@angular/core&#x27;</span>;</div><div class="hljs-ln-line"><span class="hljs-keyword">import</span> { BrowserModule } <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;@angular/platform-browser&#x27;</span>;</div><div class="hljs-ln-line"><span class="hljs-keyword">import</span> { BrowserAnimationsModule } <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;@angular/platform-browser/animations&#x27;</span>;</div><div class="hljs-ln-line"></div><div class="hljs-ln-line">@NgModule({</div><div class="hljs-ln-line">  imports: [</div><div class="hljs-ln-line">    BrowserModule,</div><div class="hljs-ln-line">    BrowserAnimationsModule</div><div class="hljs-ln-line">  ],</div><div class="hljs-ln-line">  declarations: [ ],</div><div class="hljs-ln-line">  bootstrap: [ ]</div><div class="hljs-ln-line">})</div><div class="hljs-ln-line"><span class="hljs-keyword">export</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">AppModule</span> { }</div><div class="hljs-ln-line"></div></code>
+    </pre>
+  </div>
+  
+    </li>
+    
+    <li>
+      <span class="docs-step-number" aria-hidden="true"></span>
+      
+  <h3 id="importing-animation-functions-into-component-files">
+    <a href="#importing-animation-functions-into-component-files" class="docs-anchor" tabindex="-1">Importing animation functions into component files</a>
+  </h3>
+      <p>If you plan to use specific animation functions in component files, import those functions from <code>@angular/animations</code>.</p>
+
+  <div class="docs-code" visibleLines="0,1,2,3,4,5,6,7,8,9" path="animations/src/app/app.component.ts" header="src/app/app.component.ts">
+    <div class="docs-code-header"><h3>src/app/app.component.ts</h3></div>
+    <pre class="adev-mini-scroll-track">
+      <code><div class="hljs-ln-line"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Component</span>, <span class="hljs-title class_">HostBinding</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;@angular/core&#x27;</span>;</div><div class="hljs-ln-line"><span class="hljs-keyword">import</span> {</div><div class="hljs-ln-line">  trigger,</div><div class="hljs-ln-line">  state,</div><div class="hljs-ln-line">  style,</div><div class="hljs-ln-line">  animate,</div><div class="hljs-ln-line">  transition,</div><div class="hljs-ln-line">  <span class="hljs-comment">// ...</span></div><div class="hljs-ln-line">} <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;@angular/animations&#x27;</span>;</div><div class="hljs-ln-line"></div><div class="hljs-ln-line"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">ChildrenOutletContexts</span>, <span class="hljs-title class_">RouterLink</span>, <span class="hljs-title class_">RouterOutlet</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;@angular/router&#x27;</span>;</div><div class="hljs-ln-line"><span class="hljs-keyword">import</span> { slideInAnimation } <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;./animations&#x27;</span>;</div><div class="hljs-ln-line"></div><div class="hljs-ln-line"><span class="hljs-meta">@Component</span>({</div><div class="hljs-ln-line">  <span class="hljs-attr">standalone</span>: <span class="hljs-literal">true</span>,</div><div class="hljs-ln-line">  <span class="hljs-attr">selector</span>: <span class="hljs-string">&#x27;app-root&#x27;</span>,</div><div class="hljs-ln-line">  <span class="hljs-attr">templateUrl</span>: <span class="hljs-string">&#x27;app.component.html&#x27;</span>,</div><div class="hljs-ln-line">  <span class="hljs-attr">styleUrls</span>: [<span class="hljs-string">&#x27;app.component.css&#x27;</span>],</div><div class="hljs-ln-line">  <span class="hljs-attr">imports</span>: [<span class="hljs-title class_">RouterLink</span>, <span class="hljs-title class_">RouterOutlet</span>],</div><div class="hljs-ln-line">  <span class="hljs-attr">animations</span>: [</div><div class="hljs-ln-line">    slideInAnimation</div><div class="hljs-ln-line">    <span class="hljs-comment">// animation triggers go here</span></div><div class="hljs-ln-line">  ]</div><div class="hljs-ln-line">})</div><div class="hljs-ln-line"><span class="hljs-keyword">export</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">AppComponent</span> {</div><div class="hljs-ln-line">  <span class="hljs-meta">@HostBinding</span>(<span class="hljs-string">&#x27;@.disabled&#x27;</span>)</div><div class="hljs-ln-line">  <span class="hljs-keyword">public</span> animationsDisabled = <span class="hljs-literal">false</span>;</div><div class="hljs-ln-line"></div><div class="hljs-ln-line">  <span class="hljs-title function_">constructor</span>(<span class="hljs-params"><span class="hljs-keyword">private</span> contexts: ChildrenOutletContexts</span>) {}</div><div class="hljs-ln-line"></div><div class="hljs-ln-line">  <span class="hljs-title function_">getRouteAnimationData</span>(<span class="hljs-params"></span>) {</div><div class="hljs-ln-line">    <span class="hljs-keyword">return</span> <span class="hljs-variable language_">this</span>.<span class="hljs-property">contexts</span>.<span class="hljs-title function_">getContext</span>(<span class="hljs-string">&#x27;primary&#x27;</span>)?.<span class="hljs-property">route</span>?.<span class="hljs-property">snapshot</span>?.<span class="hljs-property">data</span>?.[<span class="hljs-string">&#x27;animation&#x27;</span>];</div><div class="hljs-ln-line">  }</div><div class="hljs-ln-line"></div><div class="hljs-ln-line">  <span class="hljs-title function_">toggleAnimations</span>(<span class="hljs-params"></span>) {</div><div class="hljs-ln-line">    <span class="hljs-variable language_">this</span>.<span class="hljs-property">animationsDisabled</span> = !<span class="hljs-variable language_">this</span>.<span class="hljs-property">animationsDisabled</span>;</div><div class="hljs-ln-line">  }</div><div class="hljs-ln-line">}</div><div class="hljs-ln-line"></div></code>
+    </pre>
+  </div>
+  <p>See all <a href="guide/animations#animations-api-summary"  >available animation functions</a> at the end of this guide.</p>
+
+    </li>
+    
+    <li>
+      <span class="docs-step-number" aria-hidden="true"></span>
+      
+  <h3 id="adding-the-animation-metadata-property">
+    <a href="#adding-the-animation-metadata-property" class="docs-anchor" tabindex="-1">Adding the animation metadata property</a>
+  </h3>
+      <p>In the component file, add a metadata property called <code>animations:</code> within the <a href="api/core/Component"><code>@Component()</code></a> decorator.
+You put the trigger that defines an animation within the <code>animations</code> metadata property.</p>
+
+  <div class="docs-code" visibleLines="13,14,15,16,17,18,19,21,22,23" path="animations/src/app/app.component.ts" header="src/app/app.component.ts">
+    <div class="docs-code-header"><h3>src/app/app.component.ts</h3></div>
+    <pre class="adev-mini-scroll-track">
+      <code><div class="hljs-ln-line"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Component</span>, <span class="hljs-title class_">HostBinding</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;@angular/core&#x27;</span>;</div><div class="hljs-ln-line"><span class="hljs-keyword">import</span> {</div><div class="hljs-ln-line">  trigger,</div><div class="hljs-ln-line">  state,</div><div class="hljs-ln-line">  style,</div><div class="hljs-ln-line">  animate,</div><div class="hljs-ln-line">  transition,</div><div class="hljs-ln-line">  <span class="hljs-comment">// ...</span></div><div class="hljs-ln-line">} <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;@angular/animations&#x27;</span>;</div><div class="hljs-ln-line"></div><div class="hljs-ln-line"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">ChildrenOutletContexts</span>, <span class="hljs-title class_">RouterLink</span>, <span class="hljs-title class_">RouterOutlet</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;@angular/router&#x27;</span>;</div><div class="hljs-ln-line"><span class="hljs-keyword">import</span> { slideInAnimation } <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;./animations&#x27;</span>;</div><div class="hljs-ln-line"></div><div class="hljs-ln-line"><span class="hljs-meta">@Component</span>({</div><div class="hljs-ln-line">  <span class="hljs-attr">standalone</span>: <span class="hljs-literal">true</span>,</div><div class="hljs-ln-line">  <span class="hljs-attr">selector</span>: <span class="hljs-string">&#x27;app-root&#x27;</span>,</div><div class="hljs-ln-line">  <span class="hljs-attr">templateUrl</span>: <span class="hljs-string">&#x27;app.component.html&#x27;</span>,</div><div class="hljs-ln-line">  <span class="hljs-attr">styleUrls</span>: [<span class="hljs-string">&#x27;app.component.css&#x27;</span>],</div><div class="hljs-ln-line">  <span class="hljs-attr">imports</span>: [<span class="hljs-title class_">RouterLink</span>, <span class="hljs-title class_">RouterOutlet</span>],</div><div class="hljs-ln-line">  <span class="hljs-attr">animations</span>: [</div><div class="hljs-ln-line">    slideInAnimation</div><div class="hljs-ln-line">    <span class="hljs-comment">// animation triggers go here</span></div><div class="hljs-ln-line">  ]</div><div class="hljs-ln-line">})</div><div class="hljs-ln-line"><span class="hljs-keyword">export</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">AppComponent</span> {</div><div class="hljs-ln-line">  <span class="hljs-meta">@HostBinding</span>(<span class="hljs-string">&#x27;@.disabled&#x27;</span>)</div><div class="hljs-ln-line">  <span class="hljs-keyword">public</span> animationsDisabled = <span class="hljs-literal">false</span>;</div><div class="hljs-ln-line"></div><div class="hljs-ln-line">  <span class="hljs-title function_">constructor</span>(<span class="hljs-params"><span class="hljs-keyword">private</span> contexts: ChildrenOutletContexts</span>) {}</div><div class="hljs-ln-line"></div><div class="hljs-ln-line">  <span class="hljs-title function_">getRouteAnimationData</span>(<span class="hljs-params"></span>) {</div><div class="hljs-ln-line">    <span class="hljs-keyword">return</span> <span class="hljs-variable language_">this</span>.<span class="hljs-property">contexts</span>.<span class="hljs-title function_">getContext</span>(<span class="hljs-string">&#x27;primary&#x27;</span>)?.<span class="hljs-property">route</span>?.<span class="hljs-property">snapshot</span>?.<span class="hljs-property">data</span>?.[<span class="hljs-string">&#x27;animation&#x27;</span>];</div><div class="hljs-ln-line">  }</div><div class="hljs-ln-line"></div><div class="hljs-ln-line">  <span class="hljs-title function_">toggleAnimations</span>(<span class="hljs-params"></span>) {</div><div class="hljs-ln-line">    <span class="hljs-variable language_">this</span>.<span class="hljs-property">animationsDisabled</span> = !<span class="hljs-variable language_">this</span>.<span class="hljs-property">animationsDisabled</span>;</div><div class="hljs-ln-line">  }</div><div class="hljs-ln-line">}</div><div class="hljs-ln-line"></div></code>
+    </pre>
+  </div>
+  
+    </li>
+    
+    </ol>
+    
+  <h2 id="animating-a-transition">
+    <a href="#animating-a-transition" class="docs-anchor" tabindex="-1">Animating a transition</a>
+  </h2><p>Let&#39;s animate a transition that changes a single HTML element from one state to another.
+For example, you can specify that a button displays either <strong>Open</strong> or <strong>Closed</strong> based on the user&#39;s last action.
+When the button is in the <code>open</code> state, it&#39;s visible and yellow.
+When it&#39;s the <code>closed</code> state, it&#39;s translucent and blue.</p>
+<p>In HTML, these attributes are set using ordinary CSS styles such as color and opacity.
+In Angular, use the <a href="api/animations/style"><code>style()</code></a> function to specify a set of CSS styles for use with animations.
+Collect a set of styles in an animation state, and give the state a name, such as <code>open</code> or <code>closed</code>.</p>
+
+    <div class="docs-alert docs-alert-helpful">
+    <p><strong>HELPFUL:</strong> Let&#39;s create a new <code>open-close</code> component to animate with simple transitions.</p>
+
+    </div>
+    <p>Run the following command in terminal to generate the component:</p>
+
+  <div class="docs-code shell">
+    
+    <pre class="adev-mini-scroll-track">
+      <code><div class="hljs-ln-line">ng g component open-close</div></code>
+    </pre>
+  </div>
+  <p>This will create the component at <code>src/app/open-close.component.ts</code>.</p>
+
+  <h3 id="animation-state-and-styles">
+    <a href="#animation-state-and-styles" class="docs-anchor" tabindex="-1">Animation state and styles</a>
+  </h3><p>Use Angular&#39;s <a href="api/animations/state"  ><a href="api/animations/state"><code>state()</code></a></a> function to define different states to call at the end of each transition.
+This function takes two arguments:
+A unique name like <code>open</code> or <code>closed</code> and a <a href="api/animations/style"><code>style()</code></a> function.</p>
+<p>Use the <a href="api/animations/style"><code>style()</code></a> function to define a set of styles to associate with a given state name.
+You must use <em>camelCase</em> for style attributes that contain dashes, such as <code>backgroundColor</code> or wrap them in quotes, such as <code>&#39;background-color&#39;</code>.</p>
+<p>Let&#39;s see how Angular&#39;s <a href="api/animations/state"  ><a href="api/animations/state"><code>state()</code></a></a> function works with the <code>style⁣­(⁠)</code> function to set CSS style attributes.
+In this code snippet, multiple style attributes are set at the same time for the state.
+In the <code>open</code> state, the button has a height of 200 pixels, an opacity of 1, and a yellow background color.</p>
+
+  <div class="docs-code" visibleLines="8,9,10,11,12,13" path="animations/src/app/open-close.component.ts" header="src/app/open-close.component.ts">
+    <div class="docs-code-header"><h3>src/app/open-close.component.ts</h3></div>
+    <pre class="adev-mini-scroll-track">
+      <code><div class="hljs-ln-line"><span class="hljs-keyword">import</span> { Component, Input } from <span class="hljs-string">&#x27;@angular/core&#x27;</span>;</div><div class="hljs-ln-line"><span class="hljs-keyword">import</span> { trigger, transition, state, animate, style, AnimationEvent } from <span class="hljs-string">&#x27;@angular/animations&#x27;</span>;</div><div class="hljs-ln-line"></div><div class="hljs-ln-line"><span class="hljs-meta">@Component({</div><div class="hljs-ln-line">  standalone: true,</div><div class="hljs-ln-line">  selector: <span class="hljs-string">&#x27;app-open-close&#x27;</span>,</div><div class="hljs-ln-line">  animations: [</div><div class="hljs-ln-line">    trigger(<span class="hljs-string">&#x27;openClose&#x27;</span>, [</div><div class="hljs-ln-line">      // ...</div><div class="hljs-ln-line">      state(<span class="hljs-string">&#x27;open&#x27;</span>, style({</div><div class="hljs-ln-line">        height: <span class="hljs-string">&#x27;200px&#x27;</span>,</div><div class="hljs-ln-line">        opacity: 1,</div><div class="hljs-ln-line">        backgroundColor: <span class="hljs-string">&#x27;yellow&#x27;</span></div><div class="hljs-ln-line">      })),</div><div class="hljs-ln-line">      state(<span class="hljs-string">&#x27;closed&#x27;</span>, style({</div><div class="hljs-ln-line">        height: <span class="hljs-string">&#x27;100px&#x27;</span>,</div><div class="hljs-ln-line">        opacity: 0.8,</div><div class="hljs-ln-line">        backgroundColor: <span class="hljs-string">&#x27;blue&#x27;</span></div><div class="hljs-ln-line">      })),</div><div class="hljs-ln-line">      transition(<span class="hljs-string">&#x27;open =&gt; closed&#x27;</span>, [</div><div class="hljs-ln-line">        animate(<span class="hljs-string">&#x27;1s&#x27;</span>)</div><div class="hljs-ln-line">      ]),</div><div class="hljs-ln-line">      transition(<span class="hljs-string">&#x27;closed =&gt; open&#x27;</span>, [</div><div class="hljs-ln-line">        animate(<span class="hljs-string">&#x27;0.5s&#x27;</span>)</div><div class="hljs-ln-line">      ]),</div><div class="hljs-ln-line">      transition(<span class="hljs-string">&#x27;* =&gt; closed&#x27;</span>, [</div><div class="hljs-ln-line">        animate(<span class="hljs-string">&#x27;1s&#x27;</span>)</div><div class="hljs-ln-line">      ]),</div><div class="hljs-ln-line">      transition(<span class="hljs-string">&#x27;* =&gt; open&#x27;</span>, [</div><div class="hljs-ln-line">        animate(<span class="hljs-string">&#x27;0.5s&#x27;</span>)</div><div class="hljs-ln-line">      ]),</div><div class="hljs-ln-line">      transition(<span class="hljs-string">&#x27;open &lt;=&gt; closed&#x27;</span>, [</div><div class="hljs-ln-line">        animate(<span class="hljs-string">&#x27;0.5s&#x27;</span>)</div><div class="hljs-ln-line">      ]),</div><div class="hljs-ln-line">      transition (<span class="hljs-string">&#x27;* =&gt; open&#x27;</span>, [</div><div class="hljs-ln-line">        animate (<span class="hljs-string">&#x27;1s&#x27;</span>,</div><div class="hljs-ln-line">          style ({ opacity: <span class="hljs-string">&#x27;*&#x27;</span> }),</div><div class="hljs-ln-line">        ),</div><div class="hljs-ln-line">      ]),</div><div class="hljs-ln-line">      transition(<span class="hljs-string">&#x27;* =&gt; *&#x27;</span>, [</div><div class="hljs-ln-line">        animate(<span class="hljs-string">&#x27;1s&#x27;</span>)</div><div class="hljs-ln-line">      ]),</div><div class="hljs-ln-line">    ]),</div><div class="hljs-ln-line">  ],</div><div class="hljs-ln-line">  templateUrl: <span class="hljs-string">&#x27;open-close.component.html&#x27;</span>,</div><div class="hljs-ln-line">  styleUrls: [<span class="hljs-string">&#x27;open-close.component.css&#x27;</span>]</div><div class="hljs-ln-line">})</span></div><div class="hljs-ln-line">export <span class="hljs-keyword">class</span> <span class="hljs-title class_">OpenCloseComponent</span> {</div><div class="hljs-ln-line">  <span class="hljs-meta">@Input()</span> logging = <span class="hljs-literal">false</span>;</div><div class="hljs-ln-line">  isOpen = <span class="hljs-literal">true</span>;</div><div class="hljs-ln-line"></div><div class="hljs-ln-line">  toggle() {</div><div class="hljs-ln-line">    <span class="hljs-keyword">this</span>.isOpen = !<span class="hljs-keyword">this</span>.isOpen;</div><div class="hljs-ln-line">  }</div><div class="hljs-ln-line"></div><div class="hljs-ln-line">  onAnimationEvent(event: AnimationEvent) {</div><div class="hljs-ln-line">    <span class="hljs-keyword">if</span> (!<span class="hljs-keyword">this</span>.logging) {</div><div class="hljs-ln-line">      <span class="hljs-keyword">return</span>;</div><div class="hljs-ln-line">    }</div><div class="hljs-ln-line">    <span class="hljs-comment">// openClose is trigger name in this example</span></div><div class="hljs-ln-line">    console.warn(`Animation Trigger: ${event.triggerName}`);</div><div class="hljs-ln-line"></div><div class="hljs-ln-line">    <span class="hljs-comment">// phaseName is &quot;start&quot; or &quot;done&quot;</span></div><div class="hljs-ln-line">    console.warn(`Phase: ${event.phaseName}`);</div><div class="hljs-ln-line"></div><div class="hljs-ln-line">    <span class="hljs-comment">// in our example, totalTime is 1000 (number of milliseconds in a second)</span></div><div class="hljs-ln-line">    console.warn(`Total time: ${event.totalTime}`);</div><div class="hljs-ln-line"></div><div class="hljs-ln-line">    <span class="hljs-comment">// in our example, fromState is either &quot;open&quot; or &quot;closed&quot;</span></div><div class="hljs-ln-line">    console.warn(`From: ${event.fromState}`);</div><div class="hljs-ln-line"></div><div class="hljs-ln-line">    <span class="hljs-comment">// in our example, toState either &quot;open&quot; or &quot;closed&quot;</span></div><div class="hljs-ln-line">    console.warn(`To: ${event.toState}`);</div><div class="hljs-ln-line"></div><div class="hljs-ln-line">    <span class="hljs-comment">// the HTML element itself, the button in this case</span></div><div class="hljs-ln-line">    console.warn(`Element: ${event.element}`);</div><div class="hljs-ln-line">  }</div><div class="hljs-ln-line">}</div><div class="hljs-ln-line"></div></code>
+    </pre>
+  </div>
+  <p>In the following <code>closed</code> state, the button has a height of 100 pixels, an opacity of 0.8, and a background color of blue.</p>
+
+  <div class="docs-code" visibleLines="14,15,16,17,18" path="animations/src/app/open-close.component.ts" header="src/app/open-close.component.ts">
+    <div class="docs-code-header"><h3>src/app/open-close.component.ts</h3></div>
+    <pre class="adev-mini-scroll-track">
+      <code><div class="hljs-ln-line"><span class="hljs-keyword">import</span> { Component, Input } from <span class="hljs-string">&#x27;@angular/core&#x27;</span>;</div><div class="hljs-ln-line"><span class="hljs-keyword">import</span> { trigger, transition, state, animate, style, AnimationEvent } from <span class="hljs-string">&#x27;@angular/animations&#x27;</span>;</div><div class="hljs-ln-line"></div><div class="hljs-ln-line"><span class="hljs-meta">@Component({</div><div class="hljs-ln-line">  standalone: true,</div><div class="hljs-ln-line">  selector: <span class="hljs-string">&#x27;app-open-close&#x27;</span>,</div><div class="hljs-ln-line">  animations: [</div><div class="hljs-ln-line">    trigger(<span class="hljs-string">&#x27;openClose&#x27;</span>, [</div><div class="hljs-ln-line">      // ...</div><div class="hljs-ln-line">      state(<span class="hljs-string">&#x27;open&#x27;</span>, style({</div><div class="hljs-ln-line">        height: <span class="hljs-string">&#x27;200px&#x27;</span>,</div><div class="hljs-ln-line">        opacity: 1,</div><div class="hljs-ln-line">        backgroundColor: <span class="hljs-string">&#x27;yellow&#x27;</span></div><div class="hljs-ln-line">      })),</div><div class="hljs-ln-line">      state(<span class="hljs-string">&#x27;closed&#x27;</span>, style({</div><div class="hljs-ln-line">        height: <span class="hljs-string">&#x27;100px&#x27;</span>,</div><div class="hljs-ln-line">        opacity: 0.8,</div><div class="hljs-ln-line">        backgroundColor: <span class="hljs-string">&#x27;blue&#x27;</span></div><div class="hljs-ln-line">      })),</div><div class="hljs-ln-line">      transition(<span class="hljs-string">&#x27;open =&gt; closed&#x27;</span>, [</div><div class="hljs-ln-line">        animate(<span class="hljs-string">&#x27;1s&#x27;</span>)</div><div class="hljs-ln-line">      ]),</div><div class="hljs-ln-line">      transition(<span class="hljs-string">&#x27;closed =&gt; open&#x27;</span>, [</div><div class="hljs-ln-line">        animate(<span class="hljs-string">&#x27;0.5s&#x27;</span>)</div><div class="hljs-ln-line">      ]),</div><div class="hljs-ln-line">      transition(<span class="hljs-string">&#x27;* =&gt; closed&#x27;</span>, [</div><div class="hljs-ln-line">        animate(<span class="hljs-string">&#x27;1s&#x27;</span>)</div><div class="hljs-ln-line">      ]),</div><div class="hljs-ln-line">      transition(<span class="hljs-string">&#x27;* =&gt; open&#x27;</span>, [</div><div class="hljs-ln-line">        animate(<span class="hljs-string">&#x27;0.5s&#x27;</span>)</div><div class="hljs-ln-line">      ]),</div><div class="hljs-ln-line">      transition(<span class="hljs-string">&#x27;open &lt;=&gt; closed&#x27;</span>, [</div><div class="hljs-ln-line">        animate(<span class="hljs-string">&#x27;0.5s&#x27;</span>)</div><div class="hljs-ln-line">      ]),</div><div class="hljs-ln-line">      transition (<span class="hljs-string">&#x27;* =&gt; open&#x27;</span>, [</div><div class="hljs-ln-line">        animate (<span class="hljs-string">&#x27;1s&#x27;</span>,</div><div class="hljs-ln-line">          style ({ opacity: <span class="hljs-string">&#x27;*&#x27;</span> }),</div><div class="hljs-ln-line">        ),</div><div class="hljs-ln-line">      ]),</div><div class="hljs-ln-line">      transition(<span class="hljs-string">&#x27;* =&gt; *&#x27;</span>, [</div><div class="hljs-ln-line">        animate(<span class="hljs-string">&#x27;1s&#x27;</span>)</div><div class="hljs-ln-line">      ]),</div><div class="hljs-ln-line">    ]),</div><div class="hljs-ln-line">  ],</div><div class="hljs-ln-line">  templateUrl: <span class="hljs-string">&#x27;open-close.component.html&#x27;</span>,</div><div class="hljs-ln-line">  styleUrls: [<span class="hljs-string">&#x27;open-close.component.css&#x27;</span>]</div><div class="hljs-ln-line">})</span></div><div class="hljs-ln-line">export <span class="hljs-keyword">class</span> <span class="hljs-title class_">OpenCloseComponent</span> {</div><div class="hljs-ln-line">  <span class="hljs-meta">@Input()</span> logging = <span class="hljs-literal">false</span>;</div><div class="hljs-ln-line">  isOpen = <span class="hljs-literal">true</span>;</div><div class="hljs-ln-line"></div><div class="hljs-ln-line">  toggle() {</div><div class="hljs-ln-line">    <span class="hljs-keyword">this</span>.isOpen = !<span class="hljs-keyword">this</span>.isOpen;</div><div class="hljs-ln-line">  }</div><div class="hljs-ln-line"></div><div class="hljs-ln-line">  onAnimationEvent(event: AnimationEvent) {</div><div class="hljs-ln-line">    <span class="hljs-keyword">if</span> (!<span class="hljs-keyword">this</span>.logging) {</div><div class="hljs-ln-line">      <span class="hljs-keyword">return</span>;</div><div class="hljs-ln-line">    }</div><div class="hljs-ln-line">    <span class="hljs-comment">// openClose is trigger name in this example</span></div><div class="hljs-ln-line">    console.warn(`Animation Trigger: ${event.triggerName}`);</div><div class="hljs-ln-line"></div><div class="hljs-ln-line">    <span class="hljs-comment">// phaseName is &quot;start&quot; or &quot;done&quot;</span></div><div class="hljs-ln-line">    console.warn(`Phase: ${event.phaseName}`);</div><div class="hljs-ln-line"></div><div class="hljs-ln-line">    <span class="hljs-comment">// in our example, totalTime is 1000 (number of milliseconds in a second)</span></div><div class="hljs-ln-line">    console.warn(`Total time: ${event.totalTime}`);</div><div class="hljs-ln-line"></div><div class="hljs-ln-line">    <span class="hljs-comment">// in our example, fromState is either &quot;open&quot; or &quot;closed&quot;</span></div><div class="hljs-ln-line">    console.warn(`From: ${event.fromState}`);</div><div class="hljs-ln-line"></div><div class="hljs-ln-line">    <span class="hljs-comment">// in our example, toState either &quot;open&quot; or &quot;closed&quot;</span></div><div class="hljs-ln-line">    console.warn(`To: ${event.toState}`);</div><div class="hljs-ln-line"></div><div class="hljs-ln-line">    <span class="hljs-comment">// the HTML element itself, the button in this case</span></div><div class="hljs-ln-line">    console.warn(`Element: ${event.element}`);</div><div class="hljs-ln-line">  }</div><div class="hljs-ln-line">}</div><div class="hljs-ln-line"></div></code>
+    </pre>
+  </div>
+  
+  <h3 id="transitions-and-timing">
+    <a href="#transitions-and-timing" class="docs-anchor" tabindex="-1">Transitions and timing</a>
+  </h3><p>In Angular, you can set multiple styles without any animation.
+However, without further refinement, the button instantly transforms with no fade, no shrinkage, or other visible indicator that a change is occurring.</p>
+<p>To make the change less abrupt, you need to define an animation <em>transition</em> to specify the changes that occur between one state and another over a period of time.
+The <a href="api/animations/transition"><code>transition()</code></a> function accepts two arguments:
+The first argument accepts an expression that defines the direction between two transition states, and the second argument accepts one or a series of <a href="api/animations/animate"><code>animate()</code></a> steps.</p>
+<p>Use the <a href="api/animations/animate"><code>animate()</code></a> function to define the length, delay, and easing of a transition, and to designate the style function for defining styles while transitions are taking place.
+Use the <a href="api/animations/animate"><code>animate()</code></a> function to define the <a href="api/animations/keyframes"><code>keyframes()</code></a> function for multi-step animations.
+These definitions are placed in the second argument of the <a href="api/animations/animate"><code>animate()</code></a> function.</p>
+
+  <h4 id="animation-metadata-duration-delay-and-easing">
+    <a href="#animation-metadata-duration-delay-and-easing" class="docs-anchor" tabindex="-1">Animation metadata: duration, delay, and easing</a>
+  </h4><p>The <a href="api/animations/animate"><code>animate()</code></a> function (second argument of the transition function) accepts the <code>timings</code> and <code>styles</code> input parameters.</p>
+<p>The <code>timings</code> parameter takes either a number or a string defined in three parts.</p>
+
+  <div class="docs-code">
+    
+    <pre class="adev-mini-scroll-track">
+      <code><div class="hljs-ln-line">animate (duration)</div></code>
+    </pre>
+  </div>
+  <p>or</p>
+
+  <div class="docs-code">
+    
+    <pre class="adev-mini-scroll-track">
+      <code><div class="hljs-ln-line">animate (<span class="hljs-string">&#x27;duration delay easing&#x27;</span>)</div></code>
+    </pre>
+  </div>
+  <p>The first part, <code>duration</code>, is required.
+The duration can be expressed in milliseconds as a number without quotes, or in seconds with quotes and a time specifier.
+For example, a duration of a tenth of a second can be expressed as follows:</p>
+
+  <ul class="docs-list">
+    <li><p>As a plain number, in milliseconds:
+  <code>100</code></p>
+</li>
+<li><p>In a string, as milliseconds:
+  <code>&#39;100ms&#39;</code></p>
+</li>
+<li><p>In a string, as seconds:
+  <code>&#39;0.1s&#39;</code></p>
+</li>
+
+  </ul>
+  <p>The second argument, <code>delay</code>, has the same syntax as <code>duration</code>.
+For example:</p>
+
+  <ul class="docs-list">
+    <li>Wait for 100ms and then run for 200ms: <code>&#39;0.2s 100ms&#39;</code></li>
+
+  </ul>
+  <p>The third argument, <code>easing</code>, controls how the animation <a href="https://easings.net"  target="_blank">accelerates and decelerates</a> during its runtime.
+For example, <code>ease-in</code> causes the animation to begin slowly, and to pick up speed as it progresses.</p>
+
+  <ul class="docs-list">
+    <li><p>Wait for 100ms, run for 200ms.
+  Use a deceleration curve to start out fast and slowly decelerate to a resting point:
+  <code>&#39;0.2s 100ms ease-out&#39;</code></p>
+</li>
+<li><p>Run for 200ms, with no delay.
+  Use a standard curve to start slow, accelerate in the middle, and then decelerate slowly at the end:
+  <code>&#39;0.2s ease-in-out&#39;</code></p>
+</li>
+<li><p>Start immediately, run for 200ms.
+  Use an acceleration curve to start slow and end at full velocity:
+  <code>&#39;0.2s ease-in&#39;</code></p>
+</li>
+
+  </ul>
+  
+    <div class="docs-alert docs-alert-helpful">
+    <p><strong>HELPFUL:</strong> See the Material Design website&#39;s topic on <a href="https://material.io/design/motion/speed.html#easing"  target="_blank">Natural easing curves</a> for general information on easing curves.</p>
+
+    </div>
+    <p>This example provides a state transition from <code>open</code> to <code>closed</code> with a 1-second transition between states.</p>
+
+  <div class="docs-code" visibleLines="19,20,21" path="animations/src/app/open-close.component.ts" header="src/app/open-close.component.ts">
+    <div class="docs-code-header"><h3>src/app/open-close.component.ts</h3></div>
+    <pre class="adev-mini-scroll-track">
+      <code><div class="hljs-ln-line"><span class="hljs-keyword">import</span> { Component, Input } from <span class="hljs-string">&#x27;@angular/core&#x27;</span>;</div><div class="hljs-ln-line"><span class="hljs-keyword">import</span> { trigger, transition, state, animate, style, AnimationEvent } from <span class="hljs-string">&#x27;@angular/animations&#x27;</span>;</div><div class="hljs-ln-line"></div><div class="hljs-ln-line"><span class="hljs-meta">@Component({</div><div class="hljs-ln-line">  standalone: true,</div><div class="hljs-ln-line">  selector: <span class="hljs-string">&#x27;app-open-close&#x27;</span>,</div><div class="hljs-ln-line">  animations: [</div><div class="hljs-ln-line">    trigger(<span class="hljs-string">&#x27;openClose&#x27;</span>, [</div><div class="hljs-ln-line">      // ...</div><div class="hljs-ln-line">      state(<span class="hljs-string">&#x27;open&#x27;</span>, style({</div><div class="hljs-ln-line">        height: <span class="hljs-string">&#x27;200px&#x27;</span>,</div><div class="hljs-ln-line">        opacity: 1,</div><div class="hljs-ln-line">        backgroundColor: <span class="hljs-string">&#x27;yellow&#x27;</span></div><div class="hljs-ln-line">      })),</div><div class="hljs-ln-line">      state(<span class="hljs-string">&#x27;closed&#x27;</span>, style({</div><div class="hljs-ln-line">        height: <span class="hljs-string">&#x27;100px&#x27;</span>,</div><div class="hljs-ln-line">        opacity: 0.8,</div><div class="hljs-ln-line">        backgroundColor: <span class="hljs-string">&#x27;blue&#x27;</span></div><div class="hljs-ln-line">      })),</div><div class="hljs-ln-line">      transition(<span class="hljs-string">&#x27;open =&gt; closed&#x27;</span>, [</div><div class="hljs-ln-line">        animate(<span class="hljs-string">&#x27;1s&#x27;</span>)</div><div class="hljs-ln-line">      ]),</div><div class="hljs-ln-line">      transition(<span class="hljs-string">&#x27;closed =&gt; open&#x27;</span>, [</div><div class="hljs-ln-line">        animate(<span class="hljs-string">&#x27;0.5s&#x27;</span>)</div><div class="hljs-ln-line">      ]),</div><div class="hljs-ln-line">      transition(<span class="hljs-string">&#x27;* =&gt; closed&#x27;</span>, [</div><div class="hljs-ln-line">        animate(<span class="hljs-string">&#x27;1s&#x27;</span>)</div><div class="hljs-ln-line">      ]),</div><div class="hljs-ln-line">      transition(<span class="hljs-string">&#x27;* =&gt; open&#x27;</span>, [</div><div class="hljs-ln-line">        animate(<span class="hljs-string">&#x27;0.5s&#x27;</span>)</div><div class="hljs-ln-line">      ]),</div><div class="hljs-ln-line">      transition(<span class="hljs-string">&#x27;open &lt;=&gt; closed&#x27;</span>, [</div><div class="hljs-ln-line">        animate(<span class="hljs-string">&#x27;0.5s&#x27;</span>)</div><div class="hljs-ln-line">      ]),</div><div class="hljs-ln-line">      transition (<span class="hljs-string">&#x27;* =&gt; open&#x27;</span>, [</div><div class="hljs-ln-line">        animate (<span class="hljs-string">&#x27;1s&#x27;</span>,</div><div class="hljs-ln-line">          style ({ opacity: <span class="hljs-string">&#x27;*&#x27;</span> }),</div><div class="hljs-ln-line">        ),</div><div class="hljs-ln-line">      ]),</div><div class="hljs-ln-line">      transition(<span class="hljs-string">&#x27;* =&gt; *&#x27;</span>, [</div><div class="hljs-ln-line">        animate(<span class="hljs-string">&#x27;1s&#x27;</span>)</div><div class="hljs-ln-line">      ]),</div><div class="hljs-ln-line">    ]),</div><div class="hljs-ln-line">  ],</div><div class="hljs-ln-line">  templateUrl: <span class="hljs-string">&#x27;open-close.component.html&#x27;</span>,</div><div class="hljs-ln-line">  styleUrls: [<span class="hljs-string">&#x27;open-close.component.css&#x27;</span>]</div><div class="hljs-ln-line">})</span></div><div class="hljs-ln-line">export <span class="hljs-keyword">class</span> <span class="hljs-title class_">OpenCloseComponent</span> {</div><div class="hljs-ln-line">  <span class="hljs-meta">@Input()</span> logging = <span class="hljs-literal">false</span>;</div><div class="hljs-ln-line">  isOpen = <span class="hljs-literal">true</span>;</div><div class="hljs-ln-line"></div><div class="hljs-ln-line">  toggle() {</div><div class="hljs-ln-line">    <span class="hljs-keyword">this</span>.isOpen = !<span class="hljs-keyword">this</span>.isOpen;</div><div class="hljs-ln-line">  }</div><div class="hljs-ln-line"></div><div class="hljs-ln-line">  onAnimationEvent(event: AnimationEvent) {</div><div class="hljs-ln-line">    <span class="hljs-keyword">if</span> (!<span class="hljs-keyword">this</span>.logging) {</div><div class="hljs-ln-line">      <span class="hljs-keyword">return</span>;</div><div class="hljs-ln-line">    }</div><div class="hljs-ln-line">    <span class="hljs-comment">// openClose is trigger name in this example</span></div><div class="hljs-ln-line">    console.warn(`Animation Trigger: ${event.triggerName}`);</div><div class="hljs-ln-line"></div><div class="hljs-ln-line">    <span class="hljs-comment">// phaseName is &quot;start&quot; or &quot;done&quot;</span></div><div class="hljs-ln-line">    console.warn(`Phase: ${event.phaseName}`);</div><div class="hljs-ln-line"></div><div class="hljs-ln-line">    <span class="hljs-comment">// in our example, totalTime is 1000 (number of milliseconds in a second)</span></div><div class="hljs-ln-line">    console.warn(`Total time: ${event.totalTime}`);</div><div class="hljs-ln-line"></div><div class="hljs-ln-line">    <span class="hljs-comment">// in our example, fromState is either &quot;open&quot; or &quot;closed&quot;</span></div><div class="hljs-ln-line">    console.warn(`From: ${event.fromState}`);</div><div class="hljs-ln-line"></div><div class="hljs-ln-line">    <span class="hljs-comment">// in our example, toState either &quot;open&quot; or &quot;closed&quot;</span></div><div class="hljs-ln-line">    console.warn(`To: ${event.toState}`);</div><div class="hljs-ln-line"></div><div class="hljs-ln-line">    <span class="hljs-comment">// the HTML element itself, the button in this case</span></div><div class="hljs-ln-line">    console.warn(`Element: ${event.element}`);</div><div class="hljs-ln-line">  }</div><div class="hljs-ln-line">}</div><div class="hljs-ln-line"></div></code>
+    </pre>
+  </div>
+  <p>In the preceding code snippet, the <code>=&gt;</code> operator indicates unidirectional transitions, and <code>&lt;=&gt;</code> is bidirectional.
+Within the transition, <a href="api/animations/animate"><code>animate()</code></a> specifies how long the transition takes.
+In this case, the state change from <code>open</code> to <code>closed</code> takes 1 second, expressed here as <code>1s</code>.</p>
+<p>This example adds a state transition from the <code>closed</code> state to the <code>open</code> state with a 0.5-second transition animation arc.</p>
+
+  <div class="docs-code" visibleLines="22,23,24" path="animations/src/app/open-close.component.ts" header="src/app/open-close.component.ts">
+    <div class="docs-code-header"><h3>src/app/open-close.component.ts</h3></div>
+    <pre class="adev-mini-scroll-track">
+      <code><div class="hljs-ln-line"><span class="hljs-keyword">import</span> { Component, Input } from <span class="hljs-string">&#x27;@angular/core&#x27;</span>;</div><div class="hljs-ln-line"><span class="hljs-keyword">import</span> { trigger, transition, state, animate, style, AnimationEvent } from <span class="hljs-string">&#x27;@angular/animations&#x27;</span>;</div><div class="hljs-ln-line"></div><div class="hljs-ln-line"><span class="hljs-meta">@Component({</div><div class="hljs-ln-line">  standalone: true,</div><div class="hljs-ln-line">  selector: <span class="hljs-string">&#x27;app-open-close&#x27;</span>,</div><div class="hljs-ln-line">  animations: [</div><div class="hljs-ln-line">    trigger(<span class="hljs-string">&#x27;openClose&#x27;</span>, [</div><div class="hljs-ln-line">      // ...</div><div class="hljs-ln-line">      state(<span class="hljs-string">&#x27;open&#x27;</span>, style({</div><div class="hljs-ln-line">        height: <span class="hljs-string">&#x27;200px&#x27;</span>,</div><div class="hljs-ln-line">        opacity: 1,</div><div class="hljs-ln-line">        backgroundColor: <span class="hljs-string">&#x27;yellow&#x27;</span></div><div class="hljs-ln-line">      })),</div><div class="hljs-ln-line">      state(<span class="hljs-string">&#x27;closed&#x27;</span>, style({</div><div class="hljs-ln-line">        height: <span class="hljs-string">&#x27;100px&#x27;</span>,</div><div class="hljs-ln-line">        opacity: 0.8,</div><div class="hljs-ln-line">        backgroundColor: <span class="hljs-string">&#x27;blue&#x27;</span></div><div class="hljs-ln-line">      })),</div><div class="hljs-ln-line">      transition(<span class="hljs-string">&#x27;open =&gt; closed&#x27;</span>, [</div><div class="hljs-ln-line">        animate(<span class="hljs-string">&#x27;1s&#x27;</span>)</div><div class="hljs-ln-line">      ]),</div><div class="hljs-ln-line">      transition(<span class="hljs-string">&#x27;closed =&gt; open&#x27;</span>, [</div><div class="hljs-ln-line">        animate(<span class="hljs-string">&#x27;0.5s&#x27;</span>)</div><div class="hljs-ln-line">      ]),</div><div class="hljs-ln-line">      transition(<span class="hljs-string">&#x27;* =&gt; closed&#x27;</span>, [</div><div class="hljs-ln-line">        animate(<span class="hljs-string">&#x27;1s&#x27;</span>)</div><div class="hljs-ln-line">      ]),</div><div class="hljs-ln-line">      transition(<span class="hljs-string">&#x27;* =&gt; open&#x27;</span>, [</div><div class="hljs-ln-line">        animate(<span class="hljs-string">&#x27;0.5s&#x27;</span>)</div><div class="hljs-ln-line">      ]),</div><div class="hljs-ln-line">      transition(<span class="hljs-string">&#x27;open &lt;=&gt; closed&#x27;</span>, [</div><div class="hljs-ln-line">        animate(<span class="hljs-string">&#x27;0.5s&#x27;</span>)</div><div class="hljs-ln-line">      ]),</div><div class="hljs-ln-line">      transition (<span class="hljs-string">&#x27;* =&gt; open&#x27;</span>, [</div><div class="hljs-ln-line">        animate (<span class="hljs-string">&#x27;1s&#x27;</span>,</div><div class="hljs-ln-line">          style ({ opacity: <span class="hljs-string">&#x27;*&#x27;</span> }),</div><div class="hljs-ln-line">        ),</div><div class="hljs-ln-line">      ]),</div><div class="hljs-ln-line">      transition(<span class="hljs-string">&#x27;* =&gt; *&#x27;</span>, [</div><div class="hljs-ln-line">        animate(<span class="hljs-string">&#x27;1s&#x27;</span>)</div><div class="hljs-ln-line">      ]),</div><div class="hljs-ln-line">    ]),</div><div class="hljs-ln-line">  ],</div><div class="hljs-ln-line">  templateUrl: <span class="hljs-string">&#x27;open-close.component.html&#x27;</span>,</div><div class="hljs-ln-line">  styleUrls: [<span class="hljs-string">&#x27;open-close.component.css&#x27;</span>]</div><div class="hljs-ln-line">})</span></div><div class="hljs-ln-line">export <span class="hljs-keyword">class</span> <span class="hljs-title class_">OpenCloseComponent</span> {</div><div class="hljs-ln-line">  <span class="hljs-meta">@Input()</span> logging = <span class="hljs-literal">false</span>;</div><div class="hljs-ln-line">  isOpen = <span class="hljs-literal">true</span>;</div><div class="hljs-ln-line"></div><div class="hljs-ln-line">  toggle() {</div><div class="hljs-ln-line">    <span class="hljs-keyword">this</span>.isOpen = !<span class="hljs-keyword">this</span>.isOpen;</div><div class="hljs-ln-line">  }</div><div class="hljs-ln-line"></div><div class="hljs-ln-line">  onAnimationEvent(event: AnimationEvent) {</div><div class="hljs-ln-line">    <span class="hljs-keyword">if</span> (!<span class="hljs-keyword">this</span>.logging) {</div><div class="hljs-ln-line">      <span class="hljs-keyword">return</span>;</div><div class="hljs-ln-line">    }</div><div class="hljs-ln-line">    <span class="hljs-comment">// openClose is trigger name in this example</span></div><div class="hljs-ln-line">    console.warn(`Animation Trigger: ${event.triggerName}`);</div><div class="hljs-ln-line"></div><div class="hljs-ln-line">    <span class="hljs-comment">// phaseName is &quot;start&quot; or &quot;done&quot;</span></div><div class="hljs-ln-line">    console.warn(`Phase: ${event.phaseName}`);</div><div class="hljs-ln-line"></div><div class="hljs-ln-line">    <span class="hljs-comment">// in our example, totalTime is 1000 (number of milliseconds in a second)</span></div><div class="hljs-ln-line">    console.warn(`Total time: ${event.totalTime}`);</div><div class="hljs-ln-line"></div><div class="hljs-ln-line">    <span class="hljs-comment">// in our example, fromState is either &quot;open&quot; or &quot;closed&quot;</span></div><div class="hljs-ln-line">    console.warn(`From: ${event.fromState}`);</div><div class="hljs-ln-line"></div><div class="hljs-ln-line">    <span class="hljs-comment">// in our example, toState either &quot;open&quot; or &quot;closed&quot;</span></div><div class="hljs-ln-line">    console.warn(`To: ${event.toState}`);</div><div class="hljs-ln-line"></div><div class="hljs-ln-line">    <span class="hljs-comment">// the HTML element itself, the button in this case</span></div><div class="hljs-ln-line">    console.warn(`Element: ${event.element}`);</div><div class="hljs-ln-line">  }</div><div class="hljs-ln-line">}</div><div class="hljs-ln-line"></div></code>
+    </pre>
+  </div>
+  
+    <div class="docs-alert docs-alert-helpful">
+    <p><strong>HELPFUL:</strong> Some additional notes on using styles within <a href="api/animations/state"  ><a href="api/animations/state"><code>state</code></a></a> and <a href="api/animations/transition"><code>transition</code></a> functions.</p>
+
+    </div>
+    
+  <ul class="docs-list">
+    <li>Use <a href="api/animations/state"  ><a href="api/animations/state"><code>state()</code></a></a> to define styles that are applied at the end of each transition, they persist after the animation completes</li>
+<li>Use <a href="api/animations/transition"><code>transition()</code></a> to define intermediate styles, which create the illusion of motion during the animation</li>
+<li>When animations are disabled, <a href="api/animations/transition"><code>transition()</code></a> styles can be skipped, but <a href="api/animations/state"  ><a href="api/animations/state"><code>state()</code></a></a> styles can&#39;t</li>
+<li>Include multiple state pairs within the same <a href="api/animations/transition"><code>transition()</code></a> argument:
+  <div class="docs-code">
+    
+    <pre class="adev-mini-scroll-track">
+      <code><div class="hljs-ln-line"><span class="hljs-title function_">transition</span>( <span class="hljs-string">&#x27;on =&gt; off, off =&gt; void&#x27;</span> )</div></code>
+    </pre>
+  </div>
+  </li>
+
+  </ul>
+  
+  <h3 id="triggering-the-animation">
+    <a href="#triggering-the-animation" class="docs-anchor" tabindex="-1">Triggering the animation</a>
+  </h3><p>An animation requires a <em>trigger</em>, so that it knows when to start.
+The <a href="api/animations/trigger"><code>trigger()</code></a> function collects the states and transitions, and gives the animation a name, so that you can attach it to the triggering element in the HTML template.</p>
+<p>The <a href="api/animations/trigger"><code>trigger()</code></a> function describes the property name to watch for changes.
+When a change occurs, the trigger initiates the actions included in its definition.
+These actions can be transitions or other functions, as we&#39;ll see later on.</p>
+<p>In this example, we&#39;ll name the trigger <code>openClose</code>, and attach it to the <code>button</code> element.
+The trigger describes the open and closed states, and the timings for the two transitions.</p>
+
+    <div class="docs-alert docs-alert-helpful">
+    <p><strong>HELPFUL:</strong> Within each <a href="api/animations/trigger"><code>trigger()</code></a> function call, an element can only be in one state at any given time.</p>
+
+    </div>
+    <p>However, it&#39;s possible for multiple triggers to be active at once.</p>
+
+  <h3 id="defining-animations-and-attaching-them-to-the-html-template">
+    <a href="#defining-animations-and-attaching-them-to-the-html-template" class="docs-anchor" tabindex="-1">Defining animations and attaching them to the HTML template</a>
+  </h3><p>Animations are defined in the metadata of the component that controls the HTML element to be animated.
+Put the code that defines your animations under the <code>animations:</code> property within the <a href="api/core/Component"><code>@Component()</code></a> decorator.</p>
+
+  <div class="docs-code" visibleLines="3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,42,43,44,45,46,47,49,50,51,52,53,54,77" path="animations/src/app/open-close.component.ts" header="src/app/open-close.component.ts">
+    <div class="docs-code-header"><h3>src/app/open-close.component.ts</h3></div>
+    <pre class="adev-mini-scroll-track">
+      <code><div class="hljs-ln-line"><span class="hljs-keyword">import</span> { Component, Input } from <span class="hljs-string">&#x27;@angular/core&#x27;</span>;</div><div class="hljs-ln-line"><span class="hljs-keyword">import</span> { trigger, transition, state, animate, style, AnimationEvent } from <span class="hljs-string">&#x27;@angular/animations&#x27;</span>;</div><div class="hljs-ln-line"></div><div class="hljs-ln-line"><span class="hljs-meta">@Component({</div><div class="hljs-ln-line">  standalone: true,</div><div class="hljs-ln-line">  selector: <span class="hljs-string">&#x27;app-open-close&#x27;</span>,</div><div class="hljs-ln-line">  animations: [</div><div class="hljs-ln-line">    trigger(<span class="hljs-string">&#x27;openClose&#x27;</span>, [</div><div class="hljs-ln-line">      // ...</div><div class="hljs-ln-line">      state(<span class="hljs-string">&#x27;open&#x27;</span>, style({</div><div class="hljs-ln-line">        height: <span class="hljs-string">&#x27;200px&#x27;</span>,</div><div class="hljs-ln-line">        opacity: 1,</div><div class="hljs-ln-line">        backgroundColor: <span class="hljs-string">&#x27;yellow&#x27;</span></div><div class="hljs-ln-line">      })),</div><div class="hljs-ln-line">      state(<span class="hljs-string">&#x27;closed&#x27;</span>, style({</div><div class="hljs-ln-line">        height: <span class="hljs-string">&#x27;100px&#x27;</span>,</div><div class="hljs-ln-line">        opacity: 0.8,</div><div class="hljs-ln-line">        backgroundColor: <span class="hljs-string">&#x27;blue&#x27;</span></div><div class="hljs-ln-line">      })),</div><div class="hljs-ln-line">      transition(<span class="hljs-string">&#x27;open =&gt; closed&#x27;</span>, [</div><div class="hljs-ln-line">        animate(<span class="hljs-string">&#x27;1s&#x27;</span>)</div><div class="hljs-ln-line">      ]),</div><div class="hljs-ln-line">      transition(<span class="hljs-string">&#x27;closed =&gt; open&#x27;</span>, [</div><div class="hljs-ln-line">        animate(<span class="hljs-string">&#x27;0.5s&#x27;</span>)</div><div class="hljs-ln-line">      ]),</div><div class="hljs-ln-line">      transition(<span class="hljs-string">&#x27;* =&gt; closed&#x27;</span>, [</div><div class="hljs-ln-line">        animate(<span class="hljs-string">&#x27;1s&#x27;</span>)</div><div class="hljs-ln-line">      ]),</div><div class="hljs-ln-line">      transition(<span class="hljs-string">&#x27;* =&gt; open&#x27;</span>, [</div><div class="hljs-ln-line">        animate(<span class="hljs-string">&#x27;0.5s&#x27;</span>)</div><div class="hljs-ln-line">      ]),</div><div class="hljs-ln-line">      transition(<span class="hljs-string">&#x27;open &lt;=&gt; closed&#x27;</span>, [</div><div class="hljs-ln-line">        animate(<span class="hljs-string">&#x27;0.5s&#x27;</span>)</div><div class="hljs-ln-line">      ]),</div><div class="hljs-ln-line">      transition (<span class="hljs-string">&#x27;* =&gt; open&#x27;</span>, [</div><div class="hljs-ln-line">        animate (<span class="hljs-string">&#x27;1s&#x27;</span>,</div><div class="hljs-ln-line">          style ({ opacity: <span class="hljs-string">&#x27;*&#x27;</span> }),</div><div class="hljs-ln-line">        ),</div><div class="hljs-ln-line">      ]),</div><div class="hljs-ln-line">      transition(<span class="hljs-string">&#x27;* =&gt; *&#x27;</span>, [</div><div class="hljs-ln-line">        animate(<span class="hljs-string">&#x27;1s&#x27;</span>)</div><div class="hljs-ln-line">      ]),</div><div class="hljs-ln-line">    ]),</div><div class="hljs-ln-line">  ],</div><div class="hljs-ln-line">  templateUrl: <span class="hljs-string">&#x27;open-close.component.html&#x27;</span>,</div><div class="hljs-ln-line">  styleUrls: [<span class="hljs-string">&#x27;open-close.component.css&#x27;</span>]</div><div class="hljs-ln-line">})</span></div><div class="hljs-ln-line">export <span class="hljs-keyword">class</span> <span class="hljs-title class_">OpenCloseComponent</span> {</div><div class="hljs-ln-line">  <span class="hljs-meta">@Input()</span> logging = <span class="hljs-literal">false</span>;</div><div class="hljs-ln-line">  isOpen = <span class="hljs-literal">true</span>;</div><div class="hljs-ln-line"></div><div class="hljs-ln-line">  toggle() {</div><div class="hljs-ln-line">    <span class="hljs-keyword">this</span>.isOpen = !<span class="hljs-keyword">this</span>.isOpen;</div><div class="hljs-ln-line">  }</div><div class="hljs-ln-line"></div><div class="hljs-ln-line">  onAnimationEvent(event: AnimationEvent) {</div><div class="hljs-ln-line">    <span class="hljs-keyword">if</span> (!<span class="hljs-keyword">this</span>.logging) {</div><div class="hljs-ln-line">      <span class="hljs-keyword">return</span>;</div><div class="hljs-ln-line">    }</div><div class="hljs-ln-line">    <span class="hljs-comment">// openClose is trigger name in this example</span></div><div class="hljs-ln-line">    console.warn(`Animation Trigger: ${event.triggerName}`);</div><div class="hljs-ln-line"></div><div class="hljs-ln-line">    <span class="hljs-comment">// phaseName is &quot;start&quot; or &quot;done&quot;</span></div><div class="hljs-ln-line">    console.warn(`Phase: ${event.phaseName}`);</div><div class="hljs-ln-line"></div><div class="hljs-ln-line">    <span class="hljs-comment">// in our example, totalTime is 1000 (number of milliseconds in a second)</span></div><div class="hljs-ln-line">    console.warn(`Total time: ${event.totalTime}`);</div><div class="hljs-ln-line"></div><div class="hljs-ln-line">    <span class="hljs-comment">// in our example, fromState is either &quot;open&quot; or &quot;closed&quot;</span></div><div class="hljs-ln-line">    console.warn(`From: ${event.fromState}`);</div><div class="hljs-ln-line"></div><div class="hljs-ln-line">    <span class="hljs-comment">// in our example, toState either &quot;open&quot; or &quot;closed&quot;</span></div><div class="hljs-ln-line">    console.warn(`To: ${event.toState}`);</div><div class="hljs-ln-line"></div><div class="hljs-ln-line">    <span class="hljs-comment">// the HTML element itself, the button in this case</span></div><div class="hljs-ln-line">    console.warn(`Element: ${event.element}`);</div><div class="hljs-ln-line">  }</div><div class="hljs-ln-line">}</div><div class="hljs-ln-line"></div></code>
+    </pre>
+  </div>
+  <p>When you&#39;ve defined an animation trigger for a component, attach it to an element in that component&#39;s template by wrapping the trigger name in brackets and preceding it with an <code>@</code> symbol.
+Then, you can bind the trigger to a template expression using standard Angular property binding syntax as shown below, where <code>triggerName</code> is the name of the trigger, and <code>expression</code> evaluates to a defined animation state.</p>
+
+  <div class="docs-code">
+    
+    <pre class="adev-mini-scroll-track">
+      <code><div class="hljs-ln-line">&lt;div [<span class="hljs-meta">@triggerName</span>]=<span class="hljs-string">&quot;expression&quot;</span>&gt;…&lt;/div&gt;;</div></code>
+    </pre>
+  </div>
+  <p>The animation is executed or triggered when the expression value changes to a new state.</p>
+<p>The following code snippet binds the trigger to the value of the <code>isOpen</code> property.</p>
+
+  <div class="docs-code" visibleLines="0,1,2,3,4,5,6" path="animations/src/app/open-close.component.1.html" header="src/app/open-close.component.html">
+    <div class="docs-code-header"><h3>src/app/open-close.component.html</h3></div>
+    <pre class="adev-mini-scroll-track">
+      <code><div class="hljs-ln-line"><span class="language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">nav</span>&gt;</span></div><div class="hljs-ln-line">  <span class="hljs-tag">&lt;<span class="hljs-name">button</span> <span class="hljs-attr">type</span>=<span class="hljs-string">&quot;button&quot;</span> (<span class="hljs-attr">click</span>)=<span class="hljs-string">&quot;toggle()&quot;</span>&gt;</span>Toggle Open/Close<span class="hljs-tag">&lt;/<span class="hljs-name">button</span>&gt;</span></div><div class="hljs-ln-line"><span class="hljs-tag">&lt;/<span class="hljs-name">nav</span>&gt;</span></div><div class="hljs-ln-line"></div><div class="hljs-ln-line"><span class="hljs-tag">&lt;<span class="hljs-name">div</span> [@<span class="hljs-attr">openClose</span>]=<span class="hljs-string">&quot;isOpen ? &#x27;open&#x27; : &#x27;closed&#x27;&quot;</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;open-close-container&quot;</span>&gt;</span></div><div class="hljs-ln-line">  <span class="hljs-tag">&lt;<span class="hljs-name">p</span>&gt;</span>The box is now </span><span class="hljs-template-variable">{{ <span class="hljs-name">isOpen</span> ? <span class="hljs-string">&#x27;Open&#x27;</span> : <span class="hljs-string">&#x27;Closed&#x27;</span> }}</span><span class="language-xml">!<span class="hljs-tag">&lt;/<span class="hljs-name">p</span>&gt;</span></div><div class="hljs-ln-line"><span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span></div><div class="hljs-ln-line"></span></div></code>
+    </pre>
+  </div>
+  <p>In this example, when the <code>isOpen</code> expression evaluates to a defined state of <code>open</code> or <code>closed</code>, it notifies the trigger <code>openClose</code> of a state change.
+Then it&#39;s up to the <code>openClose</code> code to handle the state change and kick off a state change animation.</p>
+<p>For elements entering or leaving a page (inserted or removed from the DOM), you can make the animations conditional.
+For example, use <code>*ngIf</code> with the animation trigger in the HTML template.</p>
+
+    <div class="docs-alert docs-alert-helpful">
+    <p><strong>HELPFUL:</strong> In the component file, set the trigger that defines the animations as the value of the <code>animations:</code> property in the <a href="api/core/Component"><code>@Component()</code></a> decorator.</p>
+
+    </div>
+    <p>In the HTML template file, use the trigger name to attach the defined animations to the HTML element to be animated.</p>
+
+  <h3 id="code-review">
+    <a href="#code-review" class="docs-anchor" tabindex="-1">Code review</a>
+  </h3><p>Here are the code files discussed in the transition example.</p>
+
+    <div class="docs-code-multifile">
+    
+  <div class="docs-code" visibleLines="3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,42,43,44,45,46,47,49,50,51,52,53,54,77" path="animations/src/app/open-close.component.ts" header="src/app/open-close.component.ts">
+    <div class="docs-code-header"><h3>src/app/open-close.component.ts</h3></div>
+    <pre class="adev-mini-scroll-track">
+      <code><div class="hljs-ln-line"><span class="hljs-keyword">import</span> { Component, Input } from <span class="hljs-string">&#x27;@angular/core&#x27;</span>;</div><div class="hljs-ln-line"><span class="hljs-keyword">import</span> { trigger, transition, state, animate, style, AnimationEvent } from <span class="hljs-string">&#x27;@angular/animations&#x27;</span>;</div><div class="hljs-ln-line"></div><div class="hljs-ln-line"><span class="hljs-meta">@Component({</div><div class="hljs-ln-line">  standalone: true,</div><div class="hljs-ln-line">  selector: <span class="hljs-string">&#x27;app-open-close&#x27;</span>,</div><div class="hljs-ln-line">  animations: [</div><div class="hljs-ln-line">    trigger(<span class="hljs-string">&#x27;openClose&#x27;</span>, [</div><div class="hljs-ln-line">      // ...</div><div class="hljs-ln-line">      state(<span class="hljs-string">&#x27;open&#x27;</span>, style({</div><div class="hljs-ln-line">        height: <span class="hljs-string">&#x27;200px&#x27;</span>,</div><div class="hljs-ln-line">        opacity: 1,</div><div class="hljs-ln-line">        backgroundColor: <span class="hljs-string">&#x27;yellow&#x27;</span></div><div class="hljs-ln-line">      })),</div><div class="hljs-ln-line">      state(<span class="hljs-string">&#x27;closed&#x27;</span>, style({</div><div class="hljs-ln-line">        height: <span class="hljs-string">&#x27;100px&#x27;</span>,</div><div class="hljs-ln-line">        opacity: 0.8,</div><div class="hljs-ln-line">        backgroundColor: <span class="hljs-string">&#x27;blue&#x27;</span></div><div class="hljs-ln-line">      })),</div><div class="hljs-ln-line">      transition(<span class="hljs-string">&#x27;open =&gt; closed&#x27;</span>, [</div><div class="hljs-ln-line">        animate(<span class="hljs-string">&#x27;1s&#x27;</span>)</div><div class="hljs-ln-line">      ]),</div><div class="hljs-ln-line">      transition(<span class="hljs-string">&#x27;closed =&gt; open&#x27;</span>, [</div><div class="hljs-ln-line">        animate(<span class="hljs-string">&#x27;0.5s&#x27;</span>)</div><div class="hljs-ln-line">      ]),</div><div class="hljs-ln-line">      transition(<span class="hljs-string">&#x27;* =&gt; closed&#x27;</span>, [</div><div class="hljs-ln-line">        animate(<span class="hljs-string">&#x27;1s&#x27;</span>)</div><div class="hljs-ln-line">      ]),</div><div class="hljs-ln-line">      transition(<span class="hljs-string">&#x27;* =&gt; open&#x27;</span>, [</div><div class="hljs-ln-line">        animate(<span class="hljs-string">&#x27;0.5s&#x27;</span>)</div><div class="hljs-ln-line">      ]),</div><div class="hljs-ln-line">      transition(<span class="hljs-string">&#x27;open &lt;=&gt; closed&#x27;</span>, [</div><div class="hljs-ln-line">        animate(<span class="hljs-string">&#x27;0.5s&#x27;</span>)</div><div class="hljs-ln-line">      ]),</div><div class="hljs-ln-line">      transition (<span class="hljs-string">&#x27;* =&gt; open&#x27;</span>, [</div><div class="hljs-ln-line">        animate (<span class="hljs-string">&#x27;1s&#x27;</span>,</div><div class="hljs-ln-line">          style ({ opacity: <span class="hljs-string">&#x27;*&#x27;</span> }),</div><div class="hljs-ln-line">        ),</div><div class="hljs-ln-line">      ]),</div><div class="hljs-ln-line">      transition(<span class="hljs-string">&#x27;* =&gt; *&#x27;</span>, [</div><div class="hljs-ln-line">        animate(<span class="hljs-string">&#x27;1s&#x27;</span>)</div><div class="hljs-ln-line">      ]),</div><div class="hljs-ln-line">    ]),</div><div class="hljs-ln-line">  ],</div><div class="hljs-ln-line">  templateUrl: <span class="hljs-string">&#x27;open-close.component.html&#x27;</span>,</div><div class="hljs-ln-line">  styleUrls: [<span class="hljs-string">&#x27;open-close.component.css&#x27;</span>]</div><div class="hljs-ln-line">})</span></div><div class="hljs-ln-line">export <span class="hljs-keyword">class</span> <span class="hljs-title class_">OpenCloseComponent</span> {</div><div class="hljs-ln-line">  <span class="hljs-meta">@Input()</span> logging = <span class="hljs-literal">false</span>;</div><div class="hljs-ln-line">  isOpen = <span class="hljs-literal">true</span>;</div><div class="hljs-ln-line"></div><div class="hljs-ln-line">  toggle() {</div><div class="hljs-ln-line">    <span class="hljs-keyword">this</span>.isOpen = !<span class="hljs-keyword">this</span>.isOpen;</div><div class="hljs-ln-line">  }</div><div class="hljs-ln-line"></div><div class="hljs-ln-line">  onAnimationEvent(event: AnimationEvent) {</div><div class="hljs-ln-line">    <span class="hljs-keyword">if</span> (!<span class="hljs-keyword">this</span>.logging) {</div><div class="hljs-ln-line">      <span class="hljs-keyword">return</span>;</div><div class="hljs-ln-line">    }</div><div class="hljs-ln-line">    <span class="hljs-comment">// openClose is trigger name in this example</span></div><div class="hljs-ln-line">    console.warn(`Animation Trigger: ${event.triggerName}`);</div><div class="hljs-ln-line"></div><div class="hljs-ln-line">    <span class="hljs-comment">// phaseName is &quot;start&quot; or &quot;done&quot;</span></div><div class="hljs-ln-line">    console.warn(`Phase: ${event.phaseName}`);</div><div class="hljs-ln-line"></div><div class="hljs-ln-line">    <span class="hljs-comment">// in our example, totalTime is 1000 (number of milliseconds in a second)</span></div><div class="hljs-ln-line">    console.warn(`Total time: ${event.totalTime}`);</div><div class="hljs-ln-line"></div><div class="hljs-ln-line">    <span class="hljs-comment">// in our example, fromState is either &quot;open&quot; or &quot;closed&quot;</span></div><div class="hljs-ln-line">    console.warn(`From: ${event.fromState}`);</div><div class="hljs-ln-line"></div><div class="hljs-ln-line">    <span class="hljs-comment">// in our example, toState either &quot;open&quot; or &quot;closed&quot;</span></div><div class="hljs-ln-line">    console.warn(`To: ${event.toState}`);</div><div class="hljs-ln-line"></div><div class="hljs-ln-line">    <span class="hljs-comment">// the HTML element itself, the button in this case</span></div><div class="hljs-ln-line">    console.warn(`Element: ${event.element}`);</div><div class="hljs-ln-line">  }</div><div class="hljs-ln-line">}</div><div class="hljs-ln-line"></div></code>
+    </pre>
+  </div>
+  
+  <div class="docs-code" visibleLines="0,1,2,3,4,5,6" path="animations/src/app/open-close.component.1.html" header="src/app/open-close.component.html">
+    <div class="docs-code-header"><h3>src/app/open-close.component.html</h3></div>
+    <pre class="adev-mini-scroll-track">
+      <code><div class="hljs-ln-line"><span class="language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">nav</span>&gt;</span></div><div class="hljs-ln-line">  <span class="hljs-tag">&lt;<span class="hljs-name">button</span> <span class="hljs-attr">type</span>=<span class="hljs-string">&quot;button&quot;</span> (<span class="hljs-attr">click</span>)=<span class="hljs-string">&quot;toggle()&quot;</span>&gt;</span>Toggle Open/Close<span class="hljs-tag">&lt;/<span class="hljs-name">button</span>&gt;</span></div><div class="hljs-ln-line"><span class="hljs-tag">&lt;/<span class="hljs-name">nav</span>&gt;</span></div><div class="hljs-ln-line"></div><div class="hljs-ln-line"><span class="hljs-tag">&lt;<span class="hljs-name">div</span> [@<span class="hljs-attr">openClose</span>]=<span class="hljs-string">&quot;isOpen ? &#x27;open&#x27; : &#x27;closed&#x27;&quot;</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;open-close-container&quot;</span>&gt;</span></div><div class="hljs-ln-line">  <span class="hljs-tag">&lt;<span class="hljs-name">p</span>&gt;</span>The box is now </span><span class="hljs-template-variable">{{ <span class="hljs-name">isOpen</span> ? <span class="hljs-string">&#x27;Open&#x27;</span> : <span class="hljs-string">&#x27;Closed&#x27;</span> }}</span><span class="language-xml">!<span class="hljs-tag">&lt;/<span class="hljs-name">p</span>&gt;</span></div><div class="hljs-ln-line"><span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span></div><div class="hljs-ln-line"></span></div></code>
+    </pre>
+  </div>
+  
+  <div class="docs-code" path="animations/src/app/open-close.component.css" header="src/app/open-close.component.css">
+    <div class="docs-code-header"><h3>src/app/open-close.component.css</h3></div>
+    <pre class="adev-mini-scroll-track">
+      <code><div class="hljs-ln-line"><span class="hljs-selector-pseudo">:host</span> {</div><div class="hljs-ln-line">  <span class="hljs-attribute">display</span>: block;</div><div class="hljs-ln-line">  <span class="hljs-attribute">margin-top</span>: <span class="hljs-number">1rem</span>;</div><div class="hljs-ln-line">}</div><div class="hljs-ln-line"></div><div class="hljs-ln-line"><span class="hljs-selector-class">.open-close-container</span> {</div><div class="hljs-ln-line">  <span class="hljs-attribute">border</span>: <span class="hljs-number">1px</span> solid <span class="hljs-number">#dddddd</span>;</div><div class="hljs-ln-line">  <span class="hljs-attribute">margin-top</span>: <span class="hljs-number">1em</span>;</div><div class="hljs-ln-line">  <span class="hljs-attribute">padding</span>: <span class="hljs-number">20px</span> <span class="hljs-number">20px</span> <span class="hljs-number">0px</span> <span class="hljs-number">20px</span>;</div><div class="hljs-ln-line">  <span class="hljs-attribute">color</span>: <span class="hljs-number">#000000</span>;</div><div class="hljs-ln-line">  <span class="hljs-attribute">font-weight</span>: bold;</div><div class="hljs-ln-line">  <span class="hljs-attribute">font-size</span>: <span class="hljs-number">20px</span>;</div><div class="hljs-ln-line">}</div><div class="hljs-ln-line"></div></code>
+    </pre>
+  </div>
+  
+    </div>
+    
+  <h3 id="summary">
+    <a href="#summary" class="docs-anchor" tabindex="-1">Summary</a>
+  </h3><p>You learned to add animation to a transition between two states, using <a href="api/animations/style"><code>style()</code></a> and <a href="api/animations/state"  ><a href="api/animations/state"><code>state()</code></a></a> along with <a href="api/animations/animate"><code>animate()</code></a> for the timing.</p>
+<p>Learn about more advanced features in Angular animations under the Animation section, beginning with advanced techniques in <a href="guide/animations/transition-and-triggers"  >transition and triggers</a>.</p>
+
+  <h2 id="animations-api-summary">
+    <a href="#animations-api-summary" class="docs-anchor" tabindex="-1">Animations API summary</a>
+  </h2><p>The functional API provided by the <code>@angular/animations</code> module provides a domain-specific language (DSL) for creating and controlling animations in Angular applications.
+See the <a href="api/animations"  >API reference</a> for a complete listing and syntax details of the core functions and related data structures.</p>
+
+  <div class="docs-table adev-scroll-track-transparent">
+    <table>
+      <thead>
+        <tr>
+<th align="left">Function name</th>
+<th align="left">What it does</th>
+</tr>
+
+      </thead>
+      <tbody>
+        <tr>
+<td align="left"><a href="api/animations/trigger"><code>trigger()</code></a></td>
+<td align="left">Kicks off the animation and serves as a container for all other animation function calls. HTML template binds to <code>triggerName</code>. Use the first argument to declare a unique trigger name. Uses array syntax.</td>
+</tr>
+<tr>
+<td align="left"><a href="api/animations/style"><code>style()</code></a></td>
+<td align="left">Defines one or more CSS styles to use in animations. Controls the visual appearance of HTML elements during animations. Uses object syntax.</td>
+</tr>
+<tr>
+<td align="left"><a href="api/animations/state"  ><a href="api/animations/state"><code>state()</code></a></a></td>
+<td align="left">Creates a named set of CSS styles that should be applied on successful transition to a given state. The state can then be referenced by name within other animation functions.</td>
+</tr>
+<tr>
+<td align="left"><a href="api/animations/animate"><code>animate()</code></a></td>
+<td align="left">Specifies the timing information for a transition. Optional values for <code>delay</code> and <code>easing</code>. Can contain <a href="api/animations/style"><code>style()</code></a> calls within.</td>
+</tr>
+<tr>
+<td align="left"><a href="api/animations/transition"><code>transition()</code></a></td>
+<td align="left">Defines the animation sequence between two named states. Uses array syntax.</td>
+</tr>
+<tr>
+<td align="left"><a href="api/animations/keyframes"><code>keyframes()</code></a></td>
+<td align="left">Allows a sequential change between styles within a specified time interval. Use within <a href="api/animations/animate"><code>animate()</code></a>. Can include multiple <a href="api/animations/style"><code>style()</code></a> calls within each <code>keyframe()</code>. Uses array syntax.</td>
+</tr>
+<tr>
+<td align="left"><a href="api/animations/group"  ><a href="api/animations/group"><code>group()</code></a></a></td>
+<td align="left">Specifies a group of animation steps (<em>inner animations</em>) to be run in parallel. Animation continues only after all inner animation steps have completed. Used within <a href="api/animations/sequence"><code>sequence()</code></a> or <a href="api/animations/transition"><code>transition()</code></a>.</td>
+</tr>
+<tr>
+<td align="left"><a href="api/animations/query"><code>query()</code></a></td>
+<td align="left">Finds one or more inner HTML elements within the current element.</td>
+</tr>
+<tr>
+<td align="left"><a href="api/animations/sequence"><code>sequence()</code></a></td>
+<td align="left">Specifies a list of animation steps that are run sequentially, one by one.</td>
+</tr>
+<tr>
+<td align="left"><a href="api/animations/stagger"><code>stagger()</code></a></td>
+<td align="left">Staggers the starting time for animations for multiple elements.</td>
+</tr>
+<tr>
+<td align="left"><a href="api/animations/animation"><code>animation()</code></a></td>
+<td align="left">Produces a reusable animation that can be invoked from elsewhere. Used together with <a href="api/animations/useAnimation"><code>useAnimation()</code></a>.</td>
+</tr>
+<tr>
+<td align="left"><a href="api/animations/useAnimation"><code>useAnimation()</code></a></td>
+<td align="left">Activates a reusable animation. Used with <a href="api/animations/animation"><code>animation()</code></a>.</td>
+</tr>
+<tr>
+<td align="left"><a href="api/animations/animateChild"><code>animateChild()</code></a></td>
+<td align="left">Allows animations on child components to be run within the same timeframe as the parent.</td>
+</tr>
+
+      </tbody>
+    </table>
+  </div>
+  </table>
+
+
+  <h2 id="more-on-angular-animations">
+    <a href="#more-on-angular-animations" class="docs-anchor" tabindex="-1">More on Angular animations</a>
+  </h2>
+    <div class="docs-alert docs-alert-helpful">
+    <p><strong>HELPFUL:</strong> Check out this <a href="https://www.youtube.com/watch?v=rnTK9meY5us"  target="_blank">presentation</a>, shown at the AngularConnect conference in November 2017, and the accompanying <a href="https://github.com/matsko/animationsftw.in"  target="_blank">source code</a>.</p>
+
+    </div>
+    <p>You might also be interested in the following:</p>
+
+    <nav class="docs-pill-row">
+      
+    <a class="docs-pill" href="guide/animations/transition-and-triggers" >
+      Transition and triggers
+      
+    </a>
+    
+    <a class="docs-pill" href="guide/animations/complex-sequences" >
+      Complex animation sequences
+      
+    </a>
+    
+    <a class="docs-pill" href="guide/animations/reusable-animations" >
+      Reusable animations
+      
+    </a>
+    
+    <a class="docs-pill" href="guide/animations/route-animations" >
+      Route transition animations
+      
+    </a>
+    
+
+    </nav>
+    

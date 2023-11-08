@@ -12,7 +12,14 @@ ts_library(
         "@npm//@bazel/runfiles",
         "@npm//@types/marked",
         "@npm//@types/node",
+        "@npm//@types/uuid",
+        "@npm//diff",
+        "@npm//emoji-regex",
+        "@npm//glob",
+        "@npm//highlight.js",
+        "@npm//html-entities",
         "@npm//marked",
+        "@npm//uuid",
     ],
 )
 
