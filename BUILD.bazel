@@ -50,6 +50,9 @@ pkg_npm(
         "//shared-scripts:static_files",
     ],
     substitutions = NPM_PACKAGE_SUBSTITUTIONS,
+    tags = [
+        "release-package",
+    ],
     deps = [
         "//lint-rules/stylelint:lib",
         "//lint-rules/tslint:lib",

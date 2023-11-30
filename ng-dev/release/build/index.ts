@@ -6,48 +6,111 @@
  * found in the LICENSE file at https://angular.io/license
  */
 
-import {dirname, join} from 'path';
-import {fileURLToPath} from 'url';
-import {fork} from 'child_process';
+import {join} from 'path';
+import {ChildProcess} from '../../utils/child-process.js';
 import {BuiltPackage} from '../config/index.js';
+import {determineRepoBaseDirFromCwd} from '../../utils/repo-directory.js';
+import {readFile} from 'fs/promises';
+import {Log} from '../../utils/logging.js';
+import {Spinner} from '../../utils/spinner.js';
 
-export abstract class BuildWorker {
-  /**
-   * Builds the release output without polluting the process stdout. Build scripts commonly
-   * print messages to stderr or stdout. This is fine in most cases, but sometimes other tooling
-   * reserves stdout for data transfer (e.g. when `ng release build --json` is invoked). To not
-   * pollute the stdout in such cases, we launch a child process for building the release packages
-   * and redirect all stdout output to the stderr channel (which can be read in the terminal).
-   */
-  static async invokeBuild(): Promise<BuiltPackage[] | null> {
-    return new Promise((resolve) => {
-      const buildProcess = fork(getBuildWorkerScriptPath(), {
-        // The stdio option is set to redirect any "stdout" output directly to the "stderr" file
-        // descriptor. An additional "ipc" file descriptor is created to support communication with
-        // the build process. https://nodejs.org/api/child_process.html#child_process_options_stdio.
-        stdio: ['inherit', 2, 2, 'ipc'],
-      });
-      let builtPackages: BuiltPackage[] | null = null;
-
-      // The child process will pass the `buildPackages()` output through the
-      // IPC channel. We keep track of it so that we can use it as resolve value.
-      buildProcess.on(
-        'message',
-        (buildResponse: BuiltPackage[]) => (builtPackages = buildResponse),
-      );
-
-      // On child process exit, resolve the promise with the received output.
-      buildProcess.on('exit', () => resolve(builtPackages));
-    });
-  }
+/** The package.json structure. */
+interface PackageJson {
+  name: string;
 }
 
-/** Gets the absolute file path to the build worker script. */
-function getBuildWorkerScriptPath(): string {
-  // This file is getting bundled and ends up in `<pkg-root>/bundles/<chunk>`. We also
-  // bundle the build worker script as another entry-point and can reference
-  // it relatively as the path is preserved inside `bundles/`.
-  // *Note*: Relying on package resolution is problematic within ESM and with `local-dev.sh`
-  const bundlesDir = dirname(fileURLToPath(import.meta.url));
-  return join(bundlesDir, './release/build/build-worker.mjs');
+/** The full patyh to the bazel binary installed in node_modules */
+let bazelBinaryPath: string | null = null;
+
+/** Get the bazel binary path, finding it using npm if needed. */
+function getBazelBinaryPath() {
+  if (bazelBinaryPath === null) {
+    const bazelBinDirectory = ChildProcess.spawnSync('npm', ['bin', 'bazel']).stdout.trim();
+    bazelBinaryPath = join(bazelBinDirectory, 'bazel');
+  }
+
+  return bazelBinaryPath;
+}
+
+/** Query for the list of all releasable targets in the repository. */
+async function getReleasableTargetsList() {
+  const spawnResult = await ChildProcess.spawn(
+    getBazelBinaryPath(),
+    [
+      'query',
+      `--output=label`,
+      `"kind(\'ng_package|pkg_npm\', //...) intersect attr(\'tags\', \'release-package\', //...)"`,
+    ],
+    {mode: 'silent'},
+  );
+  if (spawnResult.status) {
+    Log.error(spawnResult.stderr);
+    throw Error('Failed to retrieve list of releasable targets, see details above.');
+  }
+  return (
+    spawnResult.stdout
+      // Remove empty space
+      .trim()
+      // Each target is listed on a separate line
+      .split('\n')
+      // Remove any empty entries
+      .filter((_) => !!_)
+  );
+}
+
+/** Generate the BuiltPackage object for the provided target which has already been built. */
+async function getBuiltPackageForTarget(target: string): Promise<BuiltPackage> {
+  // The full path to the directory containing the target output.
+  const outputPath = join(
+    determineRepoBaseDirFromCwd(),
+    'dist/bin',
+    target.replace('//', '').replace(':', '/'),
+  );
+  // The full path to the package.json of the target output's package.
+  const packageJSONPath = join(outputPath, 'package.json');
+  // The parsed package.json contents for the package.
+  const packageJson = JSON.parse(
+    await readFile(packageJSONPath, {encoding: 'utf-8'}),
+  ) as PackageJson;
+
+  return {
+    name: packageJson.name,
+    outputPath,
+  };
+}
+
+/** Build all of the releasable targets in the repository */
+export async function buildAllTargets() {
+  // Stamping flags for the build.
+  const stampFlags = ['--config=release'];
+
+  let spinner = new Spinner('Querying for releasable targets in the repository');
+  // The releasable targets in the repo.
+  const targets = await getReleasableTargetsList();
+
+  if (targets.length === 0) {
+    spinner.complete();
+    Log.error(`Unable to find any releasable targets in the repository`);
+    return [];
+  } else {
+    spinner.update(`Found ${targets.length} target(s) tagged as releasable in the repository`);
+  }
+
+  spinner.update(`Building ${targets.length} targets`);
+  const spawnResult = await ChildProcess.spawn(
+    getBazelBinaryPath(),
+    ['build', ...stampFlags, ...targets],
+    {mode: 'silent'},
+  );
+  if (spawnResult.status) {
+    spinner.complete();
+    Log.error(spawnResult.stderr);
+    Log.error('Failed to build all of the targest as expected, see details above');
+    throw Error();
+  }
+
+  spinner.complete();
+  Log.info(`Successful built ${targets.length} packages`);
+
+  return Promise.all(targets.map(getBuiltPackageForTarget));
 }
