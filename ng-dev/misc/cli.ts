@@ -10,6 +10,7 @@ import {Argv} from 'yargs';
 import {BuildAndLinkCommandModule} from './build-and-link/cli.js';
 import {UpdateYarnCommandModule} from './update-yarn/cli.js';
 import {ValidateLicensesModule} from './validate-licenses/cli.js';
+import {SetProtectionModule} from './set-protection/cli.js';
 
 /** Build the parser for the misc commands. */
 export function buildMiscParser(localYargs: Argv) {
@@ -18,5 +19,6 @@ export function buildMiscParser(localYargs: Argv) {
     .strict()
     .command(BuildAndLinkCommandModule)
     .command(UpdateYarnCommandModule)
+    .command(SetProtectionModule)
     .command(ValidateLicensesModule);
 }
