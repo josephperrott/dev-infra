@@ -6,7 +6,8 @@
  * found in the LICENSE file at https://angular.io/license
  */
 
-import {PullRequestConfig} from '../../config/index.js';
+import {getConfig} from '../../../utils/config.js';
+import {assertValidPullRequestConfig} from '../../config/index.js';
 import {getStatusesForPullRequest, PullRequestFromGithub} from '../fetch-pull-request.js';
 import {createPullRequestValidation, PullRequestValidation} from './validation-config.js';
 
@@ -18,7 +19,9 @@ export const enforcedStatusesValidation = createPullRequestValidation(
 );
 
 class Validation extends PullRequestValidation {
-  assert(pullRequest: PullRequestFromGithub, config: PullRequestConfig) {
+  async assert(pullRequest: PullRequestFromGithub) {
+    const {pullRequest: config} = await getConfig([assertValidPullRequestConfig]);
+
     if (config.requiredStatuses === undefined) {
       return;
     }

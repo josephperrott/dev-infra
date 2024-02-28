@@ -10,7 +10,7 @@ import nock from 'nock';
 import fs from 'fs';
 import path from 'path';
 
-import {CaretakerConfig, GithubConfig, NgDevConfig} from '../../../utils/config.js';
+import {setConfig} from '../../../utils/config.js';
 import {GoogleSyncConfig} from '../../../utils/g3-sync-config.js';
 import {targetLabels} from '../labels/target.js';
 
@@ -18,7 +18,7 @@ import {PullRequestFromGithub} from '../fetch-pull-request.js';
 import {requiresLabels} from '../labels/requires.js';
 
 import {assertValidPullRequest} from '../validation/validate-pull-request.js';
-import {PullRequestConfig, PullRequestValidationConfig} from '../../config/index.js';
+import {PullRequestValidationConfig} from '../../config/index.js';
 import {PullRequestTarget} from '../targeting/target-label.js';
 import {AuthenticatedGitClient} from '../../../utils/git/authenticated-git-client.js';
 import {installVirtualGitClientSpies, mockNgDevConfig} from '../../../utils/testing/index.js';
@@ -28,11 +28,6 @@ import {G3Stats} from '../../../utils/g3.js';
 const API_ENDPOINT = `https://api.github.com`;
 
 describe('pull request validation', () => {
-  let ngDevConfig: NgDevConfig<{
-    pullRequest: PullRequestConfig;
-    github: GithubConfig;
-    caretaker: CaretakerConfig;
-  }>;
   let prTarget: PullRequestTarget;
   let googleSyncConfig: GoogleSyncConfig;
   let git: AuthenticatedGitClient;
@@ -45,7 +40,7 @@ describe('pull request validation', () => {
       alwaysExternalFilePatterns: ['**/BUILD.bazel', '**/*.md'],
       separateFilePatterns: ['packages/core/primitives/**'],
     };
-    ngDevConfig = {
+    setConfig({
       pullRequest: {
         githubApiMerge: false,
       },
@@ -54,7 +49,7 @@ describe('pull request validation', () => {
         g3SyncConfigPath: setupFakeSyncConfig(googleSyncConfig),
       },
       ...mockNgDevConfig,
-    };
+    });
     prTarget = {branches: ['main'], label: targetLabels.TARGET_PATCH};
   });
 
@@ -85,7 +80,7 @@ describe('pull request validation', () => {
       const config = createIsolatedValidationConfig({assertEnforceTested: true});
       let pr = createTestPullRequest();
       pr.labels.nodes.push({name: requiresLabels.REQUIRES_TGP.name});
-      const results = await assertValidPullRequest(pr, config, ngDevConfig, null, prTarget, git);
+      const results = await assertValidPullRequest(pr, config);
       expect(results.length).toBe(1);
       expect(results[0].message).toBe(
         'Pull Request requires a TGP and does not have one. Either run a TGP or specify the PR is fully tested by adding a comment with "TESTED=[reason]".',
@@ -105,7 +100,7 @@ describe('pull request validation', () => {
       });
       pr.labels.nodes.push({name: requiresLabels.REQUIRES_TGP.name});
       interceptOrgsMembershipRequest('fakelogin', true);
-      const results = await assertValidPullRequest(pr, config, ngDevConfig, null, prTarget, git);
+      const results = await assertValidPullRequest(pr, config);
       expect(results.length).toBe(0);
     });
 
@@ -122,7 +117,7 @@ describe('pull request validation', () => {
       });
       pr.labels.nodes.push({name: requiresLabels.REQUIRES_TGP.name});
       interceptOrgsMembershipRequest('fakelogin', false);
-      const results = await assertValidPullRequest(pr, config, ngDevConfig, null, prTarget, git);
+      const results = await assertValidPullRequest(pr, config);
       expect(results.length).toBe(1);
     });
 
@@ -139,7 +134,7 @@ describe('pull request validation', () => {
       });
       interceptOrgsMembershipRequest('fakelogin', true);
       pr.labels.nodes.push({name: requiresLabels.REQUIRES_TGP.name});
-      const results = await assertValidPullRequest(pr, config, ngDevConfig, null, prTarget, git);
+      const results = await assertValidPullRequest(pr, config);
       expect(results.length).toBe(1);
     });
   });
@@ -152,7 +147,7 @@ describe('pull request validation', () => {
       const fileHelper = PullRequestFiles.create(git, pr.number, googleSyncConfig);
       spyOn(PullRequestFiles, 'create').and.returnValue(fileHelper);
       spyOn(fileHelper, 'loadPullRequestFiles').and.returnValue(Promise.resolve(files));
-      const results = await assertValidPullRequest(pr, config, ngDevConfig, null, prTarget, git);
+      const results = await assertValidPullRequest(pr, config);
       expect(results.length).toBe(0);
     });
 
@@ -165,7 +160,7 @@ describe('pull request validation', () => {
       spyOn(PullRequestFiles, 'create').and.returnValue(fileHelper);
       spyOn(fileHelper, 'loadPullRequestFiles').and.returnValue(Promise.resolve(files));
       spyOn(G3Stats, 'getDiffStats').and.returnValue(diffStats);
-      const results = await assertValidPullRequest(pr, config, ngDevConfig, null, prTarget, git);
+      const results = await assertValidPullRequest(pr, config);
       expect(results.length).toBe(1);
       expect(results[0].message).toBe(
         `This PR cannot be merged as Shared Primitives code has already been merged. ` +
@@ -182,7 +177,7 @@ describe('pull request validation', () => {
       spyOn(PullRequestFiles, 'create').and.returnValue(fileHelper);
       spyOn(fileHelper, 'loadPullRequestFiles').and.returnValue(Promise.resolve(files));
       spyOn(G3Stats, 'getDiffStats').and.returnValue(diffStats);
-      const results = await assertValidPullRequest(pr, config, ngDevConfig, null, prTarget, git);
+      const results = await assertValidPullRequest(pr, config);
       expect(results.length).toBe(1);
       expect(results[0].message).toBe(
         `This PR cannot be merged as Angular framework code has already been merged. ` +
@@ -199,7 +194,7 @@ describe('pull request validation', () => {
       spyOn(PullRequestFiles, 'create').and.returnValue(fileHelper);
       spyOn(G3Stats, 'getDiffStats').and.returnValue(diffStats);
       spyOn(fileHelper, 'loadPullRequestFiles').and.returnValue(Promise.resolve(files));
-      const results = await assertValidPullRequest(pr, config, ngDevConfig, null, prTarget, git);
+      const results = await assertValidPullRequest(pr, config);
       expect(results.length).toBe(0);
     });
 
@@ -212,7 +207,7 @@ describe('pull request validation', () => {
       spyOn(PullRequestFiles, 'create').and.returnValue(fileHelper);
       spyOn(G3Stats, 'getDiffStats').and.returnValue(diffStats);
       spyOn(fileHelper, 'loadPullRequestFiles').and.returnValue(Promise.resolve(files));
-      const results = await assertValidPullRequest(pr, config, ngDevConfig, null, prTarget, git);
+      const results = await assertValidPullRequest(pr, config);
       expect(results.length).toBe(0);
     });
   });

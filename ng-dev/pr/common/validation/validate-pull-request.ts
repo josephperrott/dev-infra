@@ -6,10 +6,8 @@
  * found in the LICENSE file at https://angular.io/license
  */
 
-import {parseCommitMessage} from '../../../commit-message/parse.js';
 import {ActiveReleaseTrains} from '../../../release/versioning/active-release-trains.js';
-import {NgDevConfig, GithubConfig} from '../../../utils/config.js';
-import {PullRequestConfig, PullRequestValidationConfig} from '../../config/index.js';
+import {PullRequestValidationConfig} from '../../config/index.js';
 import {PullRequestFromGithub} from '../fetch-pull-request.js';
 import {PullRequestTarget} from '../targeting/target-label.js';
 import {changesAllowForTargetLabelValidation} from './assert-allowed-target-label.js';
@@ -24,7 +22,6 @@ import {passingCiValidation} from './assert-passing-ci.js';
 import {pendingStateValidation} from './assert-pending.js';
 import {signedClaValidation} from './assert-signed-cla.js';
 import {PullRequestValidationFailure} from './validation-failure.js';
-import {AuthenticatedGitClient} from '../../../utils/git/authenticated-git-client.js';
 
 /**
  * Runs all valiations that the given pull request is valid, returning a list of all failing
@@ -35,49 +32,20 @@ import {AuthenticatedGitClient} from '../../../utils/git/authenticated-git-clien
 export async function assertValidPullRequest(
   pullRequest: PullRequestFromGithub,
   validationConfig: PullRequestValidationConfig,
-  ngDevConfig: NgDevConfig<{
-    pullRequest: PullRequestConfig;
-    github: GithubConfig;
-  }>,
-  activeReleaseTrains: ActiveReleaseTrains | null,
-  target: PullRequestTarget,
-  gitClient: AuthenticatedGitClient,
 ): Promise<PullRequestValidationFailure[]> {
-  const labels = pullRequest.labels.nodes.map((l) => l.name);
-  const commitsInPr = pullRequest.commits.nodes.map((n) => {
-    return parseCommitMessage(n.commit.message);
-  });
-
   const validationResults = [
     minimumReviewsValidation.run(validationConfig, pullRequest),
     completedReviewsValidation.run(validationConfig, pullRequest),
     mergeReadyValidation.run(validationConfig, pullRequest),
     signedClaValidation.run(validationConfig, pullRequest),
     pendingStateValidation.run(validationConfig, pullRequest),
-    breakingChangeInfoValidation.run(validationConfig, commitsInPr, labels),
+    breakingChangeInfoValidation.run(validationConfig, pullRequest),
     passingCiValidation.run(validationConfig, pullRequest),
-    enforcedStatusesValidation.run(validationConfig, pullRequest, ngDevConfig.pullRequest),
-    isolatedSeparateFilesValidation.run(
-      validationConfig,
-      ngDevConfig,
-      pullRequest.number,
-      gitClient,
-    ),
-    enforceTestedValidation.run(validationConfig, pullRequest, gitClient.github),
+    enforcedStatusesValidation.run(validationConfig, pullRequest),
+    isolatedSeparateFilesValidation.run(validationConfig, pullRequest),
+    enforceTestedValidation.run(validationConfig, pullRequest),
+    changesAllowForTargetLabelValidation.run(validationConfig, pullRequest),
   ];
-
-  if (activeReleaseTrains !== null) {
-    validationResults.push(
-      changesAllowForTargetLabelValidation.run(
-        validationConfig,
-        commitsInPr,
-        target.label,
-        ngDevConfig.pullRequest,
-        activeReleaseTrains,
-        labels,
-      ),
-    );
-  }
 
   return await Promise.all(validationResults).then((results) => {
     return results.filter(

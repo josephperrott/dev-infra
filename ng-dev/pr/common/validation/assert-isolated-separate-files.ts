@@ -14,12 +14,14 @@ import {
   GoogleSyncConfig,
   NgDevConfig,
   assertValidCaretakerConfig,
+  assertValidGithubConfig,
+  getConfig,
 } from '../../../utils/config.js';
 import {SyncFileMatchFn, getGoogleSyncConfig} from '../../../utils/g3-sync-config.js';
 import {G3StatsData, G3Stats} from '../../../utils/g3.js';
 import {createPullRequestValidation, PullRequestValidation} from './validation-config.js';
 import {AuthenticatedGitClient} from '../../../utils/git/authenticated-git-client.js';
-import {fetchPullRequestFilesFromGithub} from '../fetch-pull-request.js';
+import {PullRequestFromGithub, fetchPullRequestFilesFromGithub} from '../fetch-pull-request.js';
 
 /** Assert the pull request has passing enforced statuses. */
 // TODO: update typings to make sure portability is properly handled for windows build.
@@ -29,18 +31,16 @@ export const isolatedSeparateFilesValidation = createPullRequestValidation(
 );
 
 class Validation extends PullRequestValidation {
-  async assert(
-    config: NgDevConfig<{
-      github: GithubConfig;
-    }>,
-    prNumber: number,
-    gitClient: AuthenticatedGitClient,
-  ) {
+  async assert({number: prNumber}: PullRequestFromGithub) {
+    const config = await getConfig();
     try {
+      assertValidGithubConfig(config);
       assertValidCaretakerConfig(config);
     } catch {
       throw this._createError('No Caretaker Config was found.');
     }
+
+    const gitClient = await AuthenticatedGitClient.get();
 
     const g3SyncConfigWithMatchers = await getGsyncConfig(config.caretaker, gitClient);
     if (g3SyncConfigWithMatchers === null) {

@@ -6,7 +6,8 @@
  * found in the LICENSE file at https://angular.io/license
  */
 
-import {Commit} from '../../../commit-message/parse.js';
+import {parseCommitMessage} from '../../../commit-message/parse.js';
+import {PullRequestFromGithub} from '../fetch-pull-request.js';
 import {managedLabels} from '../labels/index.js';
 import {createPullRequestValidation, PullRequestValidation} from './validation-config.js';
 
@@ -18,11 +19,15 @@ export const breakingChangeInfoValidation = createPullRequestValidation(
 );
 
 class Validation extends PullRequestValidation {
-  assert(commits: Commit[], labels: string[]) {
+  assert({labels, commits}: PullRequestFromGithub) {
     // Whether the PR has a label noting a breaking change.
-    const hasLabel = labels.includes(managedLabels.DETECTED_BREAKING_CHANGE.name);
+    const hasLabel = labels.nodes.some(
+      ({name}) => name === managedLabels.DETECTED_BREAKING_CHANGE.name,
+    );
     // Whether the PR has at least one commit which notes a breaking change.
-    const hasCommit = commits.some((commit) => commit.breakingChanges.length !== 0);
+    const hasCommit = commits.nodes.some(
+      ({commit}) => parseCommitMessage(commit.message).breakingChanges.length !== 0,
+    );
 
     if (!hasLabel && hasCommit) {
       throw this._createMissingBreakingChangeLabelError();

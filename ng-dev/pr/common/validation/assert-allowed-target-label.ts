@@ -6,13 +6,17 @@
  * found in the LICENSE file at https://angular.io/license
  */
 
-import {Commit} from '../../../commit-message/parse.js';
+import {parseCommitMessage} from '../../../commit-message/parse.js';
+import { assertValidGithubConfig, getConfig } from '../../../utils/config.js';
 import {ActiveReleaseTrains} from '../../../release/versioning/active-release-trains.js';
 import {Log, red} from '../../../utils/logging.js';
-import {PullRequestConfig} from '../../config/index.js';
+import {assertValidPullRequestConfig} from '../../config/index.js';
+import {PullRequestFromGithub} from '../fetch-pull-request.js';
 import {mergeLabels} from '../labels/index.js';
 import {TargetLabel, targetLabels} from '../labels/target.js';
 import {createPullRequestValidation, PullRequestValidation} from './validation-config.js';
+import {  getTargetBranchesAndLabelForPullRequest } from '../targeting/target-label.js';
+import { AuthenticatedGitClient } from '../../../utils/git/authenticated-git-client.js';
 
 /** Assert the commits provided are allowed to merge to the provided target label. */
 // TODO: update typings to make sure portability is properly handled for windows build.
@@ -22,14 +26,46 @@ export const changesAllowForTargetLabelValidation = createPullRequestValidation(
 );
 
 class Validation extends PullRequestValidation {
-  assert(
-    commits: Commit[],
-    targetLabel: TargetLabel,
-    config: PullRequestConfig,
-    releaseTrains: ActiveReleaseTrains,
-    labelsOnPullRequest: string[],
+  async assert(
+    pullRequest: PullRequestFromGithub,
   ) {
-    if (labelsOnPullRequest.includes(mergeLabels.MERGE_FIX_COMMIT_MESSAGE.name)) {
+    /** The current configuration. */
+    const config = await getConfig([assertValidPullRequestConfig, assertValidGithubConfig]);
+
+    if (config.pullRequest.__noTargetLabeling) {
+      // If there is no target labeling, we always target the main branch and treat the PR as
+      // if it has been labeled with the `target: major` label (allowing for all types of changes).
+      return;
+    }
+
+    const git = await AuthenticatedGitClient.get();
+
+
+    /** The labels applied to the pull request. */
+    const labels = pullRequest.labels.nodes.map(({name}) => name);
+
+    const releaseTrains = await ActiveReleaseTrains.fetch({
+      name: config.github.name,
+      nextBranchName: config.github.mainBranchName,
+      owner: config.github.owner,
+      api: git.github,
+    });
+
+    const {label: targetLabel} = await getTargetBranchesAndLabelForPullRequest(
+      releaseTrains,
+      git.github,
+      config,
+      labels,
+      pullRequest.baseRefName,
+      );
+
+
+    /** List of parsed commits from the pull request, ignoring commits which are exempted scopes. */
+    const commits = pullRequest.commits.nodes
+      .map(({commit}) => parseCommitMessage(commit.message))
+      .filter((commit) => !exemptedScopes.includes(commit.scope));
+
+    if (labels.includes(mergeLabels.MERGE_FIX_COMMIT_MESSAGE.name)) {
       Log.debug(
         'Skipping commit message target label validation because the commit message fixup label is ' +
           'applied.',
@@ -39,9 +75,7 @@ class Validation extends PullRequestValidation {
 
     // List of commit scopes which are exempted from target label content requirements. i.e. no `feat`
     // scopes in patch branches, no breaking changes in minor or patch changes.
-    const exemptedScopes = config.targetLabelExemptScopes || [];
-    // List of commits which are subject to content requirements for the target label.
-    commits = commits.filter((commit) => !exemptedScopes.includes(commit.scope));
+    const exemptedScopes = config.pullRequest.targetLabelExemptScopes || [];
     const hasBreakingChanges = commits.some((commit) => commit.breakingChanges.length !== 0);
     const hasDeprecations = commits.some((commit) => commit.deprecations.length !== 0);
     const hasFeatureCommits = commits.some((commit) => commit.type === 'feat');

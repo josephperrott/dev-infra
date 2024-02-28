@@ -11,6 +11,7 @@ import {isGooglerOrgMember} from '../../../utils/git/github-googlers.js';
 import {PullRequestFromGithub} from '../fetch-pull-request.js';
 import {createPullRequestValidation, PullRequestValidation} from './validation-config.js';
 import {requiresLabels} from '../labels/index.js';
+import {AuthenticatedGitClient} from '../../../utils/git/authenticated-git-client.js';
 
 /** Assert the pull request has passing enforced statuses. */
 // TODO: update typings to make sure portability is properly handled for windows build.
@@ -20,10 +21,12 @@ export const enforceTestedValidation = createPullRequestValidation(
 );
 
 class Validation extends PullRequestValidation {
-  async assert(pullRequest: PullRequestFromGithub, gitClient: GithubClient) {
+  async assert(pullRequest: PullRequestFromGithub) {
     if (!pullRequestRequiresTGP(pullRequest)) {
       return;
     }
+
+    const gitClient = (await AuthenticatedGitClient.get()).github;
 
     if (await pullRequestHasValidTestedComment(pullRequest, gitClient)) {
       return;
