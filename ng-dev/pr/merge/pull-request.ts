@@ -52,6 +52,13 @@ export interface PullRequest {
   validationFailures: PullRequestValidationFailure[];
   /** The SHA for the latest commit in the pull request. */
   headSha: string;
+  /** The reference for the repository and refname the pull request is opened from. */
+  headRef: {
+    name: string;
+    repository: {
+      url: string;
+    };
+  };
 }
 
 /**
@@ -155,5 +162,6 @@ export async function loadAndValidatePullRequest(
     title: prData.title,
     commitCount: prData.commits.totalCount,
     headSha: prData.headRefOid,
+    headRef: prData.headRef,
   };
 }

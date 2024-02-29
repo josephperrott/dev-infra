@@ -200,4 +200,29 @@ export abstract class MergeStrategy {
       throw new MergeConflictsFatalError(failedBranches);
     }
   }
+
+  /**
+   * Rebase the pull request, autosquashing the fixup commits, HEAD is returned to the specific
+   * branch or revision from before the rebase is performed.
+   *
+   * Returns whether or not the rebase squashed any fixups.
+   */
+  protected rebaseWithAutosquash({needsCommitMessageFixup, baseSha}: PullRequest): boolean {
+    const shaBeforeRebase = this.git.run(['rev-parse', TEMP_PR_HEAD_BRANCH]);
+    // We always rebase the pull request so that fixup or squash commits are automatically
+    // collapsed. Git's autosquash functionality does only work in interactive rebases, so
+    // our rebase is always interactive. In reality though, unless a commit message fixup
+    // is desired, we set the `GIT_SEQUENCE_EDITOR` environment variable to `true` so that
+    // the rebase seems interactive to Git, while it's not interactive to the user.
+    // See: https://github.com/git/git/commit/891d4a0313edc03f7e2ecb96edec5d30dc182294.
+    const rebaseEnv = needsCommitMessageFixup
+      ? undefined
+      : {...process.env, GIT_SEQUENCE_EDITOR: 'true'};
+    this.git.run(['rebase', '--interactive', '--autosquash', baseSha, TEMP_PR_HEAD_BRANCH], {
+      stdio: 'inherit',
+      env: rebaseEnv,
+    });
+
+    return shaBeforeRebase === this.git.run(['rev-parse', TEMP_PR_HEAD_BRANCH]);
+  }
 }

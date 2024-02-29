@@ -14,7 +14,7 @@ import {AuthenticatedGitClient} from '../../../utils/git/authenticated-git-clien
 import {GithubApiMergeMethod, GithubApiMergeStrategyConfig} from '../../config/index.js';
 import {PullRequest} from '../pull-request.js';
 
-import {MergeStrategy} from './strategy.js';
+import {MergeStrategy, TEMP_PR_HEAD_BRANCH} from './strategy.js';
 import {isGithubApiError} from '../../../utils/git/github.js';
 import {FatalMergeToolError, MergeConflictsFatalError} from '../failures.js';
 
@@ -51,7 +51,8 @@ export class GithubApiMergeStrategy extends MergeStrategy {
    * @throws {FatalMergeToolError} A fatal error if the merge could not be performed.
    */
   override async merge(pullRequest: PullRequest): Promise<void> {
-    const {githubTargetBranch, prNumber, needsCommitMessageFixup, targetBranches} = pullRequest;
+    const {githubTargetBranch, prNumber, needsCommitMessageFixup, targetBranches, headRef} =
+      pullRequest;
     const method = this._getMergeActionFromPullRequest(pullRequest);
     const cherryPickTargetBranches = targetBranches.filter((b) => b !== githubTargetBranch);
 
@@ -71,6 +72,21 @@ export class GithubApiMergeStrategy extends MergeStrategy {
         );
       }
       await this._promptCommitMessageEdit(pullRequest, mergeOptions);
+    }
+
+    // For rebase merge attempts, we first rebase with autosquash.  If the autosquash causes a
+    // change, we push the change back up to the pull request authors change.
+    // Since we have already performed testing using these changes and are willing to commit them
+    // with the autosquash, we safely push these changes back up and immediately merge them before
+    // CI fully executes.
+    if (method === 'rebase' && this.rebaseWithAutosquash(pullRequest)) {
+      const forceWithLeaseFlag = `--force-with-lease=${headRef.name}:${pullRequest.headSha}`;
+      this.git.run([
+        'push',
+        headRef.repository.url,
+        `${TEMP_PR_HEAD_BRANCH}:${headRef.name}`,
+        forceWithLeaseFlag,
+      ]);
     }
 
     let mergeStatusCode: number;
