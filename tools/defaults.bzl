@@ -75,6 +75,7 @@ def ts_library(name, testonly = False, deps = [], srcs = [], devmode_module = No
         **kwargs
     )
 
+
 def pkg_npm(build_package_json_from_template = False, deps = [], **kwargs):
     _assert_defaults_allowed_for_caller()
 

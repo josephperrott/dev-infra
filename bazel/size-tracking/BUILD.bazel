@@ -1,0 +1,27 @@
+load("@npm//@bazel/concatjs:index.bzl", "ts_library")
+load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_binary")
+
+package(default_visibility = ["//visibility:public"])
+
+ts_library(
+    name = "upload_lib",
+    srcs = [
+        "upload.ts",
+    ],
+    tsconfig = "//:tsconfig.json",
+    deps = [
+        "@npm//@types/node",
+        "@npm//yargs",
+        "@npm//@types/yargs",
+    ],
+)
+
+nodejs_binary(
+    name = "upload",
+    data = [
+        ":upload_lib"
+    ],
+    entry_point = ":upload.js",
+    templated_args = ["--nobazel_run_linker"],
+)
+

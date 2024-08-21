@@ -1,7 +1,10 @@
 load("//:package.bzl", "NPM_PACKAGE_SUBSTITUTIONS")
+
+load("//bazel/size-tracking:index.bzl", "size_tracking")
+
 load("//tools:defaults.bzl", "esbuild_esm_bundle", "pkg_npm", "ts_library")
 load("//bazel:extract_types.bzl", "extract_types")
-
+load("//bazel:extract_js_module_output.bzl", "extract_js_module_output")
 NG_DEV_EXTERNALS = [
     # `typescript` is external because we want the project to provide a TypeScript version.
     # TODO: Figure out how we want to manage dependencies for the dev-infra tool.
@@ -85,5 +88,17 @@ pkg_npm(
         ":bundles",
         ":ng-dev",
         ":types",
+    ],
+)
+
+extract_js_module_output(
+    name = "for_file_count",
+    forward_linker_mappings = False,
+    include_declarations = False,
+    include_default_files = False,
+    include_external_npm_packages = False,
+    provider = "JSModuleInfo",
+    deps = [
+        ":bundles",
     ],
 )
