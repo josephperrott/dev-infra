@@ -1,4 +1,5 @@
 load("//tools:defaults.bzl", "ts_library")
+load("//bazel/size-tracking:index.bzl", "size_tracking")
 
 # g3-sync-config needs to be a separate file / target so that google-internal-tests
 # won't need ts-node to parse this file
@@ -77,4 +78,31 @@ ts_library(
         "//tools/jasmine:__pkg__",
     ],
     deps = [],
+)
+
+ts_library(
+    name = "ng-dev-service",
+    srcs = ["ng-dev-service.ts"],
+    visibility = [
+        "//ng-dev/auth:__subpackages__",
+        "//ng-dev/pr:__subpackages__",
+    ],
+    deps = [
+        ":utils",
+        "//ng-dev/auth/shared",
+        "@npm//@types/yargs",
+        "@npm//firebase",
+        "@npm//yargs",
+    ],
+)
+
+
+size_tracking(
+    name = "test",
+    deps = [
+        ":config_cache",
+    ],
+    tracked_files = [
+        "config-cache.mjs",
+    ]
 )
