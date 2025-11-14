@@ -7,12 +7,10 @@
  */
 
 import {Argv, CommandModule} from 'yargs';
-
 import {addGithubTokenOption} from '../../utils/git/github-yargs.js';
-
 import {updateCaretakerTeamViaPrompt} from './update-github-team.js';
-
-export interface CaretakerHandoffOptions {}
+import {assertValidCaretakerConfig, getConfig} from '../../utils/config.js';
+import {verifyMergeMode} from './verify-merge-mode.js';
 
 /** Builds the command. */
 function builder(argv: Argv) {
@@ -21,11 +19,18 @@ function builder(argv: Argv) {
 
 /** Handles the command. */
 async function handler() {
+  // TODO(josephperrott): require merge mode to be defined in all caretaker configs.
+  const {
+    caretaker: {repositoryMergeMode},
+  } = await getConfig([assertValidCaretakerConfig]);
+  if (repositoryMergeMode && !(await verifyMergeMode(repositoryMergeMode))) {
+    return;
+  }
   await updateCaretakerTeamViaPrompt();
 }
 
 /** yargs command module for assisting in handing off caretaker.  */
-export const HandoffModule: CommandModule<{}, CaretakerHandoffOptions> = {
+export const HandoffModule: CommandModule<{}, {}> = {
   handler,
   builder,
   command: 'handoff',

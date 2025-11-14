@@ -61,6 +61,9 @@ export interface GoogleSyncConfig {
   separateFilePatterns: string[];
 }
 
+/** The available merge modes for repositories to utilize for normal usage. */
+export type RepositoryMergeModes = 'team-only' | 'caretaker-only';
+
 export interface CaretakerConfig {
   /** Github queries showing a snapshot of pulls/issues caretakers need to monitor. */
   githubQueries?: {name: string; query: string}[];
@@ -74,6 +77,11 @@ export interface CaretakerConfig {
    * The configuration file is expected to be valid JSONC and match {@see GoogleSyncConfig}.
    */
   g3SyncConfigPath?: string;
+  /**
+   * The merge mode to use for the repository, either allowing only the caretaker to perform
+   * merges, or allowing all team members to do so.
+   */
+  repositoryMergeMode?: RepositoryMergeModes;
 }
 
 /** The filename expected for creating the ng-dev config. */
