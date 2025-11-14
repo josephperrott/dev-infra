@@ -3,7 +3,7 @@ load("//tools:defaults.bzl", "ts_project")
 ts_project(
     name = "config",
     srcs = glob(["**/*.ts"]),
-    visibility = ["//ng-dev/caretaker:__subpackages__"],
+    visibility = ["//ng-dev:__subpackages__"],
     deps = [
         "//ng-dev:node_modules/@types/yargs",
         "//ng-dev:node_modules/yargs",

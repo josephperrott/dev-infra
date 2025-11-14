@@ -20,6 +20,7 @@ import {actions} from './actions/index.js';
 import {verifyNgDevToolIsUpToDate} from '../../utils/version-check.js';
 import {Log, yellow} from '../../utils/logging.js';
 import {Prompt} from '../../utils/prompt.js';
+import {getRepoConfigValue} from '../../caretaker/config/get/index.js';
 
 export enum CompletionState {
   SUCCESS,
@@ -50,6 +51,7 @@ export class ReleaseTool {
     const nextBranchName = getNextBranchName(this._github);
 
     if (
+      !(await this._verifyInReleaseMergeMode()) ||
       !(await this._verifyNoUncommittedChanges()) ||
       !(await this._verifyRunningFromNextBranch(nextBranchName)) ||
       !(await this._verifyNoShallowRepository()) ||
@@ -139,6 +141,24 @@ export class ReleaseTool {
   private async _verifyNoUncommittedChanges(): Promise<boolean> {
     if (this._git.hasUncommittedChanges()) {
       Log.error('  ✘   There are changes which are not committed and should be discarded.');
+      return false;
+    }
+    return true;
+  }
+
+  /**
+   * Verifies that there are no uncommitted changes in the project.
+   * @returns a boolean indicating success or failure.
+   */
+  private async _verifyInReleaseMergeMode(): Promise<boolean> {
+    const currentMergeMode = await getRepoConfigValue('merge-mode');
+    if (currentMergeMode !== 'release') {
+      Log.error(
+        `  ✘   The repository merge-mode is currently set to ${currentMergeMode} but must be set to release before`,
+      );
+      Log.error(
+        '.     publishing releases. You can set the repository to relese by running `ng-dev caretaker start-release`',
+      );
       return false;
     }
     return true;
