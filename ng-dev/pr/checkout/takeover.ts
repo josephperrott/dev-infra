@@ -28,9 +28,20 @@ export async function checkoutAsPrTakeover(
   /** The branch name to be used for the takeover attempt. */
   const branchName = `pr-takeover-${prNumber}`;
 
+  // Check if the branch already exists and if so, ask the user if they want to overwrite it.
   if (git.runGraceful(['rev-parse', '-q', '--verify', branchName]).status === 0) {
-    Log.error(` ✘ Expected branch name \`${branchName}\` already exists locally`);
-    return;
+    if (
+      await Prompt.confirm({
+        message: `Branch \`${branchName}\` already exists locally, do you want to overwrite it with the latest version of the pull request?`,
+        default: false,
+      })
+    ) {
+      git.run(['branch', '-D', branchName]);
+    } else {
+      Log.info('Aborting takeover..');
+      resetGitState();
+      return;
+    }
   }
 
   // Validate that the takeover attempt is being made against a pull request created by an
